@@ -1,4 +1,5 @@
 def process_labels(labels):
+    
     """
     Converts labels to integers and performs zero indexing if necessary.
     If all labels are already 0 or 1, no conversion is performed.
