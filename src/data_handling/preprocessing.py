@@ -1,5 +1,8 @@
 from utils import process_labels
 
+def encode_general_classification(data, tokenizer) -> dict:
+    """Encode a batch of input data that is in the format text,label"""
+    return tokenizer(data["text"],max_length=128,truncation=True,padding="max_length")
 
 def encode_winogrande(data,tokenizer) -> dict:
     """Encodes a batch of input data using the model tokenizer."""
@@ -30,3 +33,4 @@ def encode_winogrande(data,tokenizer) -> dict:
         #all_encoded["labels"].append(int(label)-1 if isinstance(label, str) and label.isdigit() else int(0)) # was else label
 
     return all_encoded
+
