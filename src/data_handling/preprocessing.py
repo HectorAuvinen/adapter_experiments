@@ -4,20 +4,18 @@ def encode_general_classification(data, tokenizer) -> dict:
     """Encode a batch of input data that is in the format text,label"""
     return tokenizer(data["text"],max_length=128,truncation=True,padding="max_length")
 
+def encode_hellaswag(data,tokenizer) -> dict:
+    pass
+
 def encode_winogrande(data,tokenizer) -> dict:
     """Encodes a batch of input data using the model tokenizer."""
     all_encoded = {"input_ids": [], "attention_mask": [], "labels": []}
-    #
+
     processed_labels = process_labels(all_encoded["answer"])
     
-    #
-    # Iterate through all examples in this batch
-    #
     for sentence, option1,option2,label in zip(data["sentence"], data["option1"],data["option2"], processed_labels):
-        # 
         sentences_a = [sentence for _ in range(2)]
         sentences_b = [option1,option2]
-        #print(sentences_b)
         encoded = tokenizer(
             sentences_a,
             sentences_b,
@@ -34,3 +32,38 @@ def encode_winogrande(data,tokenizer) -> dict:
 
     return all_encoded
 
+def encode_cosmosqa(data,tokenizer) -> dict:
+    pass
+
+def encode_socialiqa(data,tokenizer) -> dict:
+    pass
+
+def encode_imdb(data,tokenizer) -> dict:
+    pass
+
+def encode_sst2(data,tokenizer) -> dict:
+    pass
+
+def encode_mnli(data,tokenizer) -> dict:
+    pass
+
+def encode_sickr(data,tokenizer) -> dict:
+    pass
+
+def encode_rte(data,tokenizer) -> dict:
+    pass
+
+def encode_cb(data,tokenizer) -> dict:
+    pass
+
+def encode_mrpc(data,tokenizer) -> dict:
+    pass
+
+def encode_qqp(data,tokenizer) -> dict:
+    pass
+
+def encode_argumentmining(data,tokenizer) -> dict:
+    pass
+
+def encode_boolq(data,tokenizer) -> dict:
+    pass
