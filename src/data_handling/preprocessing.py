@@ -10,7 +10,7 @@ def encode_winogrande(data,tokenizer) -> dict:
     #
     # Iterate through all examples in this batch
     #
-    for sentence, option1,option2,label in zip(data["sentence"], data["option1"],data["option2"], data["answer"]):
+    for sentence, option1,option2,label in zip(data["sentence"], data["option1"],data["option2"], processed_labels):
         # 
         sentences_a = [sentence for _ in range(2)]
         sentences_b = [option1,option2]
@@ -24,6 +24,7 @@ def encode_winogrande(data,tokenizer) -> dict:
         )
         all_encoded["input_ids"].append(encoded["input_ids"])
         all_encoded["attention_mask"].append(encoded["attention_mask"])
+        all_encoded["labels"].append(label)
         # Add the labels. Convert label to int if it's not already (assuming label is the index of the correct ending)
         # labels currently 1,2 -> convert to 0,1
         #all_encoded["labels"].append(int(label)-1 if isinstance(label, str) and label.isdigit() else int(0)) # was else label
