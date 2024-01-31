@@ -1,4 +1,15 @@
 from utils import process_labels
+from transformers import BertTokenizer
+
+def get_tokenizer(model_name):
+    if "bert" in model_name:
+        return BertTokenizer.from_pretrained(model_name)
+    
+def map_clf_dataset(dataset, encode:callable):
+    dataset = dataset.map(encode,batched=True)
+    dataset = dataset.rename_column(original_column_name="label",new_column_name="labels")
+    dataset.set_format(type="torch",columns=["input_ids","attention_mask","labels"])
+    return dataset
 
 def encode_general_classification(data, tokenizer) -> dict:
     """Encode a batch of input data that is in the format text,label"""
