@@ -33,16 +33,33 @@ def encode_winogrande(data,tokenizer) -> dict:
     return all_encoded
 
 def encode_cosmosqa(data,tokenizer) -> dict:
-    pass
+    """Encodes a batch of input data using the model tokenizer."""
+    all_encoded = {"input_ids": [], "attention_mask": [], "labels": []}
+
+    for sentence, answer0,answer1,answer2,answer3,label in zip(data["context"], data["answer0"],data["answer1"],data["answer2"],data["answer3"], data["label"]):
+        sentences_a = [sentence for _ in range(4)]
+        sentences_b = [answer0, answer1, answer2, answer3]
+        encoded = tokenizer(
+            sentences_a,
+            sentences_b,
+            max_length=256,  # or any max_length that suits your model/context
+            truncation=True,
+            padding="max_length",
+        )
+        all_encoded["input_ids"].append(encoded["input_ids"])
+        all_encoded["attention_mask"].append(encoded["attention_mask"])
+        all_encoded["labels"].append(label)
+
+    return all_encoded
 
 def encode_socialiqa(data,tokenizer) -> dict:
     pass
 
-def encode_imdb(data,tokenizer) -> dict:
+def encode_imdb(data,tokenizer,config) -> dict:
     pass
 
-def encode_sst2(data,tokenizer) -> dict:
-    pass
+def encode_sst2(data,tokenizer,config) -> dict:
+    return tokenizer(data["sentence"],max_length=128,truncation=True,padding="max_length")
 
 def encode_mnli(data,tokenizer) -> dict:
     pass
@@ -67,3 +84,16 @@ def encode_argumentmining(data,tokenizer) -> dict:
 
 def encode_boolq(data,tokenizer) -> dict:
     pass
+
+
+def preprocess_dataset(dataset,encode_batch):
+    # Encode the input data
+    dataset = dataset.map(encode_batch, batched=True)
+    print("mapped")
+    # The transformers model expects the target class column to be named "labels"
+    # Check if renaming is necessary based on your dataset structure
+    print(dataset.column_names)
+    # dataset = dataset.rename_column("label", "labels")
+    # Transform to pytorch tensors and only output the required columns
+    dataset.set_format(columns=["input_ids", "attention_mask", "labels"])
+    return dataset   

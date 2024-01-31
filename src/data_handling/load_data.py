@@ -23,7 +23,7 @@ def load_hf_dataset(task_name:str,
         dataset = load_dataset(task_name)
     
     if debug:
-        selected_datasets = {split: dataset[split].select(range(100)) for split in dataset.keys()}
+        selected_datasets = {split: dataset[split].select(range(10)) for split in dataset.keys()}
         # Convert the dictionary back into a DatasetDict
         dataset = DatasetDict(selected_datasets)
     
