@@ -1,9 +1,13 @@
-from utils import process_labels
+from .utils import process_labels
 from transformers import BertTokenizer
+    
+
 
 def get_tokenizer(model_name):
     if "bert" in model_name:
+        print("using bert tokenizer")
         return BertTokenizer.from_pretrained(model_name)
+    print("not using bert tokenizer")
     
 def map_clf_dataset(dataset, encode:callable):
     dataset = dataset.map(encode,batched=True)
@@ -69,7 +73,7 @@ def encode_socialiqa(data,tokenizer) -> dict:
 def encode_imdb(data,tokenizer,config) -> dict:
     pass
 
-def encode_sst2(data,tokenizer,config) -> dict:
+def encode_sst2(data,tokenizer) -> dict:
     return tokenizer(data["sentence"],max_length=128,truncation=True,padding="max_length")
 
 def encode_mnli(data,tokenizer) -> dict:
@@ -96,15 +100,31 @@ def encode_argumentmining(data,tokenizer) -> dict:
 def encode_boolq(data,tokenizer) -> dict:
     pass
 
+def encode_wrapper(data, tokenizer, encoding_func, **kwargs):
+    def wrapper(batch):
+        return encoding_func(batch, tokenizer, **kwargs)
+    return wrapper
 
-def preprocess_dataset(dataset,encode_batch):
+def preprocess_dataset(dataset,encoding_func,tokenizer):
     # Encode the input data
-    dataset = dataset.map(encode_batch, batched=True)
+    dataset = dataset.map(encode_wrapper(dataset,tokenizer,encoding_func), batched=True)
     print("mapped")
     # The transformers model expects the target class column to be named "labels"
     # Check if renaming is necessary based on your dataset structure
     print(dataset.column_names)
-    # dataset = dataset.rename_column("label", "labels")
+    dataset = dataset.rename_column("label", "labels")
     # Transform to pytorch tensors and only output the required columns
     dataset.set_format(columns=["input_ids", "attention_mask", "labels"])
     return dataset   
+
+
+encode_map = {
+    "sst2":encode_sst2,
+    "winogrande":encode_winogrande,
+    
+}
+
+def get_encoding(task_name):
+    print("getting encoding:")
+    print(encode_map[task_name])
+    return encode_map[task_name]
