@@ -28,7 +28,10 @@ def load_hf_dataset(task_name:str,
             dataset = dataset.rename_column("answer","label")
             dataset = dataset.map(boolean_to_int_label)
             dataset = dataset.cast_column("label",class_label_bool)
-            
+        if task_name == "social_i_qa":
+            dataset = dataset.class_encode_column("label")
+            class_label_feature = ClassLabel(num_classes=3,names=["answerA","answerB","answerC"])
+            dataset = dataset.cast_column("label",class_label_feature)
     
     if debug:
         selected_datasets = {split: dataset[split].select(range(10)) for split in dataset.keys()}

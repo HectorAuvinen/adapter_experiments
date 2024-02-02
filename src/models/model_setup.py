@@ -28,4 +28,12 @@ def add_clf_adapter(task_name,model,num_labels,adapter_config):
     return model
     
     #model.set_active_adapters(task_name)
+
+def add_mc_adapter(task_name,model,num_labels,adapter_config):
+    model.add_adapter(task_name,config=adapter_config)
     
+    model.add_multiple_choice_head(task_name,num_choices=num_labels)
+    
+    model.train_adapter(task_name)
+    
+    return model

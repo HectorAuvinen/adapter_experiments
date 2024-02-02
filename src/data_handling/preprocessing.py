@@ -68,7 +68,21 @@ def encode_cosmosqa(data,tokenizer) -> dict:
     return all_encoded
 
 def encode_socialiqa(data,tokenizer) -> dict:
-    pass
+    all_encoded = {"input_ids":[],"attention_mask":[]}
+    for context,question,answera,answerb,answerc in zip(data["context"],data["question"],data["answerA"],data["answerB"],data["answerC"]):
+        sentences_a = [context + " " + question for _ in range(3)]
+        sentences_b = [answera,answerb,answerc]
+        encoded = tokenizer(
+            sentences_a,
+            sentences_b,
+            max_length=128,
+            truncation=True,
+            padding="max_length"
+        )
+        all_encoded["input_ids"].append(encoded["input_ids"])
+        all_encoded["attention_mask"].append(encoded["attention_mask"])
+    
+    return all_encoded
 
 def encode_imdb(data,tokenizer,config) -> dict:
     pass
@@ -98,7 +112,7 @@ def encode_argumentmining(data,tokenizer) -> dict:
     pass
 
 def encode_boolq(data,tokenizer) -> dict:
-    return tokenizer(data["question"],data["passage"],max_length=128,truncation=True,padding="max_length")
+    return tokenizer(data["question"],data["passage"],max_length=128,truncation=True,padding="max_length",return_overflowing_tokens=True)
 
 def encode_wrapper(data, tokenizer, encoding_func, **kwargs):
     def wrapper(batch):
