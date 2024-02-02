@@ -79,17 +79,17 @@ def encode_sst2(data,tokenizer) -> dict:
 def encode_mnli(data,tokenizer) -> dict:
     pass
 
-def encode_sickr(data,tokenizer) -> dict:
-    pass
+def encode_sick(data,tokenizer) -> dict:
+    return tokenizer(data["sentence_A"],data["sentence_B"],max_length=180,truncation=True,padding="max_length")
 
 def encode_rte(data,tokenizer) -> dict:
-    pass
+    return tokenizer(data["sentence1"],data["sentence2"],max_length=180,truncation=True,padding="max_length")
 
 def encode_cb(data,tokenizer) -> dict:
-    pass
+    return(tokenizer(data["premise"],data["hypothesis"],max_length=180,truncation=True,padding="max_length"))
 
 def encode_mrpc(data,tokenizer) -> dict:
-    pass
+    return tokenizer(data["sentence1"],data["sentence2"],max_length=180,truncation=True,padding="max_length")
 
 def encode_qqp(data,tokenizer) -> dict:
     pass
@@ -98,7 +98,7 @@ def encode_argumentmining(data,tokenizer) -> dict:
     pass
 
 def encode_boolq(data,tokenizer) -> dict:
-    pass
+    return tokenizer(data["question"],data["passage"],max_length=128,truncation=True,padding="max_length")
 
 def encode_wrapper(data, tokenizer, encoding_func, **kwargs):
     def wrapper(batch):
@@ -121,6 +121,11 @@ def preprocess_dataset(dataset,encoding_func,tokenizer):
 encode_map = {
     "sst2":encode_sst2,
     "winogrande":encode_winogrande,
+    "cb":encode_cb,
+    "rte":encode_rte,
+    "sick":encode_sick,
+    "mrpc":encode_mrpc,
+    "boolq":encode_boolq,
     
 }
 
@@ -128,3 +133,8 @@ def get_encoding(task_name):
     print("getting encoding:")
     print(encode_map[task_name])
     return encode_map[task_name]
+
+def get_label_count(dataset):
+    id2label = {id: label for (id,label) in enumerate(dataset["train"].features["labels"].names)}
+    num_labels = len(id2label)
+    return num_labels

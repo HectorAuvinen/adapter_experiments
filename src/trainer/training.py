@@ -7,7 +7,7 @@ class TrainingParameters:
     def __init__(self, label_names=["labels"],
                  evaluation_strategy="steps",
                  learning_rate=1e-4,
-                 num_train_epochs=1,
+                 num_train_epochs=30,
                  per_device_train_batch_size=8,
                  per_device_eval_batch_size=8,
                  eval_steps=50,
@@ -41,7 +41,8 @@ class TrainingParameters:
         self.save_total_limit = save_total_limit  
         # https://stackoverflow.com/questions/69087044/early-stopping-in-bert-trainer-instances
         # early stopping
-    
+
+
 def calculate_accuracy(p: EvalPrediction):
     preds = np.argmax(p.predictions, axis=1)
     return {"accuracy":(preds == p.label_ids).mean()}
