@@ -57,6 +57,7 @@ def load_hf_dataset(task_name:str,
             dataset = dataset.class_encode_column("label")
             class_label_feature = ClassLabel(num_classes=2, names=["True","False"])
             dataset = dataset.cast_column("label",class_label_feature)
+
         if task_name == "social_i_qa":
             dataset = dataset.class_encode_column("label")
             class_label_feature = ClassLabel(num_classes=3,names=["answerA","answerB","answerC"])

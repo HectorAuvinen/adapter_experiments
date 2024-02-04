@@ -17,7 +17,7 @@ class TrainingParameters:
                  remove_unused_columns=False,
                  lr_scheduler_type='linear',
                  load_best_model_at_end=True,
-                 metric_for_best_model = "accuracy",
+                 metric_for_best_model = "eval_accuracy",
                  early_stopping_patience=3,
                  save_total_limit=5
                  ):

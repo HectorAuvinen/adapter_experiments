@@ -97,34 +97,34 @@ def encode_socialiqa(data,tokenizer) -> dict:
     return all_encoded
 
 def encode_imdb(data,tokenizer) -> dict:
-    return tokenizer(data["text"], max_length=128, truncation=True, padding="max_length")
+    return tokenizer(data["text"], max_length=256, truncation=True, padding="max_length")
 
 def encode_sst2(data,tokenizer) -> dict:
-    return tokenizer(data["sentence"],max_length=128,truncation=True,padding="max_length")
+    return tokenizer(data["sentence"],max_length=256,truncation=True,padding="max_length")
 
 def encode_mnli(data,tokenizer) -> dict:
-    return tokenizer(data["premise"],data["hypothesis"],max_length=180,truncation=True,padding="max_length")
+    return tokenizer(data["premise"],data["hypothesis"],max_length=256,truncation=True,padding="max_length")
 
 def encode_sick(data,tokenizer) -> dict:
-    return tokenizer(data["sentence_A"],data["sentence_B"],max_length=180,truncation=True,padding="max_length")
+    return tokenizer(data["sentence_A"],data["sentence_B"],max_length=256,truncation=True,padding="max_length")
 
 def encode_rte(data,tokenizer) -> dict:
-    return tokenizer(data["sentence1"],data["sentence2"],max_length=180,truncation=True,padding="max_length")
+    return tokenizer(data["sentence1"],data["sentence2"],max_length=256,truncation=True,padding="max_length")
 
 def encode_cb(data,tokenizer) -> dict:
-    return(tokenizer(data["premise"],data["hypothesis"],max_length=180,truncation=True,padding="max_length"))
+    return(tokenizer(data["premise"],data["hypothesis"],max_length=256,truncation=True,padding="max_length"))
 
 def encode_mrpc(data,tokenizer) -> dict:
-    return tokenizer(data["sentence1"],data["sentence2"],max_length=180,truncation=True,padding="max_length")
+    return tokenizer(data["sentence1"],data["sentence2"],max_length=256,truncation=True,padding="max_length")
 
 def encode_qqp(data,tokenizer) -> dict:
-    return tokenizer(data["question1"],data["question2"],max_length=180,truncation=True,padding="max_length")
+    return tokenizer(data["question1"],data["question2"],max_length=256,truncation=True,padding="max_length")
 
 def encode_argument(data,tokenizer) -> dict:
-    return tokenizer(data["sentence"], max_length=128, truncation=True, padding="max_length")
+    return tokenizer(data["sentence"], max_length=256, truncation=True, padding="max_length")
 
 def encode_boolq(data,tokenizer) -> dict:
-    return tokenizer(data["passage"],data["question"],max_length=128,truncation=True,padding="max_length",return_overflowing_tokens=True)
+    return tokenizer(data["passage"],data["question"],max_length=256,truncation=True,padding="max_length",return_overflowing_tokens=True)
 
 def encode_csqa(data, tokenizer) -> dict:
     all_encoded = {"input_ids":[],"attention_mask":[]}
@@ -143,7 +143,7 @@ def encode_csqa(data, tokenizer) -> dict:
     return all_encoded
 
 def encode_scitail(data,tokenizer) -> dict:
-    return tokenizer(data["premise"],data["hypothesis"],max_length=180,truncation=True,padding="max_length")
+    return tokenizer(data["premise"],data["hypothesis"],max_length=256,truncation=True,padding="max_length")
 
 def encode_wrapper(data, tokenizer, encoding_func, **kwargs):
     def wrapper(batch):
