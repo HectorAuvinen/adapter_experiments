@@ -20,15 +20,26 @@ def encode_general_classification(data, tokenizer) -> dict:
     return tokenizer(data["text"],max_length=128,truncation=True,padding="max_length")
 
 def encode_hellaswag(data,tokenizer) -> dict:
-    pass
+    all_encoded = {"input_ids": [], "attention_mask": []}
+    
+    for sentence, endings in zip(data["ctx"], data["endings"]):
+        sentences_a = [sentence for _ in range(4)]
+        sentences_b = [ending for ending in endings]
+        encoded = tokenizer(
+            sentences_a,
+            sentences_b,
+            max_length=128,  # or any max_length that suits your model/context
+            truncation=True,
+            padding="max_length",
+        )
+        all_encoded["input_ids"].append(encoded["input_ids"])
+        all_encoded["attention_mask"].append(encoded["attention_mask"])
+    return all_encoded
 
 def encode_winogrande(data,tokenizer) -> dict:
     """Encodes a batch of input data using the model tokenizer."""
-    all_encoded = {"input_ids": [], "attention_mask": [], "labels": []}
-
-    processed_labels = process_labels(all_encoded["answer"])
-    
-    for sentence, option1,option2,label in zip(data["sentence"], data["option1"],data["option2"], processed_labels):
+    all_encoded = {"input_ids": [], "attention_mask": []}
+    for sentence, option1,option2 in zip(data["sentence"], data["option1"],data["option2"]):
         sentences_a = [sentence for _ in range(2)]
         sentences_b = [option1,option2]
         encoded = tokenizer(
@@ -40,7 +51,6 @@ def encode_winogrande(data,tokenizer) -> dict:
         )
         all_encoded["input_ids"].append(encoded["input_ids"])
         all_encoded["attention_mask"].append(encoded["attention_mask"])
-        all_encoded["labels"].append(label)
         # Add the labels. Convert label to int if it's not already (assuming label is the index of the correct ending)
         # labels currently 1,2 -> convert to 0,1
         #all_encoded["labels"].append(int(label)-1 if isinstance(label, str) and label.isdigit() else int(0)) # was else label
@@ -49,21 +59,23 @@ def encode_winogrande(data,tokenizer) -> dict:
 
 def encode_cosmosqa(data,tokenizer) -> dict:
     """Encodes a batch of input data using the model tokenizer."""
-    all_encoded = {"input_ids": [], "attention_mask": [], "labels": []}
+    all_encoded = {"input_ids": [], "attention_mask": []}
 
-    for sentence, answer0,answer1,answer2,answer3,label in zip(data["context"], data["answer0"],data["answer1"],data["answer2"],data["answer3"], data["label"]):
+    #for sentence, answer0,answer1,answer2,answer3,label in zip(data["context"], data["answer0"],data["answer1"],data["answer2"],data["answer3"], data["label"]):
+    for sentence, answer0,answer1,answer2,answer3 in zip(data["context"], data["answer0"],data["answer1"],data["answer2"],data["answer3"]):
         sentences_a = [sentence for _ in range(4)]
         sentences_b = [answer0, answer1, answer2, answer3]
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            max_length=256,  # or any max_length that suits your model/context
+            #max_length=128,  # or any max_length that suits your model/context
+            max_length=80,
             truncation=True,
             padding="max_length",
         )
         all_encoded["input_ids"].append(encoded["input_ids"])
         all_encoded["attention_mask"].append(encoded["attention_mask"])
-        all_encoded["labels"].append(label)
+        #all_encoded["labels"].append(label)
 
     return all_encoded
 
@@ -84,14 +96,14 @@ def encode_socialiqa(data,tokenizer) -> dict:
     
     return all_encoded
 
-def encode_imdb(data,tokenizer,config) -> dict:
-    pass
+def encode_imdb(data,tokenizer) -> dict:
+    return tokenizer(data["text"], max_length=128, truncation=True, padding="max_length")
 
 def encode_sst2(data,tokenizer) -> dict:
     return tokenizer(data["sentence"],max_length=128,truncation=True,padding="max_length")
 
 def encode_mnli(data,tokenizer) -> dict:
-    pass
+    return tokenizer(data["premise"],data["hypothesis"],max_length=180,truncation=True,padding="max_length")
 
 def encode_sick(data,tokenizer) -> dict:
     return tokenizer(data["sentence_A"],data["sentence_B"],max_length=180,truncation=True,padding="max_length")
@@ -106,13 +118,32 @@ def encode_mrpc(data,tokenizer) -> dict:
     return tokenizer(data["sentence1"],data["sentence2"],max_length=180,truncation=True,padding="max_length")
 
 def encode_qqp(data,tokenizer) -> dict:
-    pass
+    return tokenizer(data["question1"],data["question2"],max_length=180,truncation=True,padding="max_length")
 
-def encode_argumentmining(data,tokenizer) -> dict:
-    pass
+def encode_argument(data,tokenizer) -> dict:
+    return tokenizer(data["sentence"], max_length=128, truncation=True, padding="max_length")
 
 def encode_boolq(data,tokenizer) -> dict:
-    return tokenizer(data["question"],data["passage"],max_length=128,truncation=True,padding="max_length",return_overflowing_tokens=True)
+    return tokenizer(data["passage"],data["question"],max_length=128,truncation=True,padding="max_length",return_overflowing_tokens=True)
+
+def encode_csqa(data, tokenizer) -> dict:
+    all_encoded = {"input_ids":[],"attention_mask":[]}
+    for question,choices in zip(data["question"],data["choices"]):
+        sentences_a = [question for choice_text in choices["text"]]
+        sentences_b = [choice for choice in choices["text"]]
+        encoded = tokenizer(
+            sentences_a,
+            sentences_b,
+            max_length=128,
+            truncation=True,
+            padding="max_length"
+        )
+        all_encoded["input_ids"].append(encoded["input_ids"])
+        all_encoded["attention_mask"].append(encoded["attention_mask"])
+    return all_encoded
+
+def encode_scitail(data,tokenizer) -> dict:
+    return tokenizer(data["premise"],data["hypothesis"],max_length=180,truncation=True,padding="max_length")
 
 def encode_wrapper(data, tokenizer, encoding_func, **kwargs):
     def wrapper(batch):
@@ -128,19 +159,30 @@ def preprocess_dataset(dataset,encoding_func,tokenizer):
     print(dataset.column_names)
     dataset = dataset.rename_column("label", "labels")
     # Transform to pytorch tensors and only output the required columns
-    dataset.set_format(columns=["input_ids", "attention_mask", "labels"])
-    return dataset   
+    # WHICH ONE BELOW???
+    dataset.set_format(type="torch",columns=["input_ids", "attention_mask", "labels"])
+    #dataset.set_format(columns=["input_ids", "attention_mask", "labels"])
+    return dataset
+   
 
 
 encode_map = {
-    "sst2":encode_sst2,
-    "winogrande":encode_winogrande,
     "cb":encode_cb,
     "rte":encode_rte,
     "sick":encode_sick,
     "mrpc":encode_mrpc,
     "boolq":encode_boolq,
-    
+    "commonsense_qa":encode_csqa,
+    "argument":encode_argument,
+    "scitail":encode_scitail,
+    "cosmos_qa":encode_cosmosqa,
+    "social_i_qa":encode_socialiqa,
+    "hellaswag":encode_hellaswag,
+    "imdb":encode_imdb,
+    "winogrande":encode_winogrande,
+    "sst2":encode_sst2,
+    "qqp":encode_qqp,
+    "mnli":encode_mnli
 }
 
 def get_encoding(task_name):
