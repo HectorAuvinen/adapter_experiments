@@ -39,7 +39,7 @@ def load_hf_dataset(task_name:str,
         # Cast the label column to ClassLabel
         dataset = dataset.cast_column('label', class_label_feature)
     elif task_name == "imdb":
-        dataset = load_dataset(task_name,split=["train","test"])
+        dataset = load_dataset(task_name)
         dataset["validation"] = dataset.pop("test")
     elif task_name == "winogrande":
         dataset = load_dataset(task_name,"winogrande_xl")
