@@ -1,11 +1,105 @@
 # import argument parsers
+import sys
+import os
+import json
 import argparse
+import logging
+from pathlib import Path
 
+project_root = os.path.dirname(os.getcwd())
+sys.path.insert(0,project_root)
 
-def train_and_eval():
-    pass
+from src.data_handling.load_data import *
+from src.data_handling.preprocessing import *
+from src.models.model_setup import *
+from src.trainer.training import *
+from src.trainer.file_utils import *
+from transformers import set_seed
+
+logging.basicConfig(level=logging.Info,format='%(asctime)s %(levelname)s : %(message)s')
+logger = logging.getLogger(__name__)
+
+root = Path(__file__).resolve().parent
+
+def train_and_eval(task,model,output_dir,adapter_config,seed):
+    set_seed(seed)
+    for name,config in config.items():
+        logger.info(f"using config {name}")
+        
+        output_dir = os.path.join(output_dir,name)
+        if not os.path.exists(output_dir):
+            # If the folder doesn't exist, create it
+            os.makedirs(output_dir)
+            logger.info(f"Folder '{output_dir}' created.")
+        else:
+            logger.info(f"Folder '{output_dir}' already exists.")
+        
+            logger.info(f"**********************************RUNNING CONFIG {name}*****************************")
+
+        for task in tasks:
+            logger.info(f"**********************************RUNNING TASK {task}*****************************")
+            # load dataset
+            data = load_hf_dataset(task,debug=False)
+            # get tokenizer (bert)
+            tokenizer = get_tokenizer(model_name)
+            # get encoding method for particular task
+            encode = get_encoding(task)
+            # apply encoding
+            dataset = preprocess_dataset(data,encode,tokenizer)
+            # get label count
+            num_labels = get_label_count(dataset)
+            # set up model (head with num labels)
+            model = setup_model(model_name,num_labels,dataset)
+            
+            # set up adapter config
+            adapter_config = adapters.BnConfig(
+                                    output_adapter=config["output_adapter"],
+                                    mh_adapter=config["mh_adapter"],
+                                    reduction_factor=config["reduction_factor"],
+                                    non_linearity=config["non_linearity"])
+
+            # add adapter
+            model = add_clf_adapter(task_name=task,model=model,num_labels=num_labels,adapter_config=adapter_config)
+            
+            # set up training args
+            final_output = os.path.join(output_dir,task)
+            default_args = TrainingParameters(output_dir=final_output,
+                                            per_device_train_batch_size=8,
+                                            evaluation_strategy="epoch",
+                                            eval_steps=1,
+                                            save_strategy="epoch",
+                                            logging_steps=200)
+            default_args.lr_scheduler_type = "linear"
+            train_args = get_training_arguments(default_args)
+            
+            # set up trainer
+            trainer = get_trainer(train_args,dataset,model,early_stopping=3)
+            # train
+            trainer.train()
+            
+            # evaluate and write results to file
+            eval_results = trainer.evaluate()
+            write_eval_results(eval_results,output_dir,task,trainer,adapter_config)
 
 
 if __name__ == '__main__':
-    # parse command line arguments
-    pass
+    parser = argparse.ArgumentParser(description="TODO")
+    parser.add_argument("--task_name",type=str,help="TODO",default="cb")
+    parser.add_argument("--model_name",type=str,help="TODO",default="bert-base-uncased")
+    parser.add_argument("--output_path",type=str,help="TODO",default="C:/Users/Hector Auvinen/Desktop/eval_results/bigger_eval_steps")
+    parser.add_argument("--adapter_config_path",type=str,help="TODO",default="../src/configs/adapter_configs.json")
+    parser.add_argument("--logging",type=str,default="DEBUG",help="log level")
+    
+    args = parser.parse_args()
+    
+    logging.getLogger().setLevel(level=args.logging)
+    
+    #outpath = Path(args.output_path)
+    seed = 42
+    tasks = [args.task_name]
+    model_name = args.model_name
+    output_path = args.output_path
+    adapter_config_path = args.config_path
+    adapter_config = json_to_dict(adapter_config_path)
+    
+    train_and_eval(tasks,model_name,output_path,adapter_config,seed)

@@ -1,5 +1,11 @@
 # import
 import os
+import json
+
+def json_to_dict(file_path):
+    with open(file_path, "r") as json_file:
+        data = json.load(json_file)
+    return data
 
 def write_eval_results(eval_results,output_dir,task,trainer,adapter_config):
     print("Writing eval results")
