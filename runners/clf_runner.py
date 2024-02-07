@@ -20,6 +20,19 @@ logging.basicConfig(level=logging.Info,format='%(asctime)s %(levelname)s : %(mes
 logger = logging.getLogger(__name__)
 
 root = Path(__file__).resolve().parent
+ALL_TASKS = [
+    "cb","rte","sick","mrpc","boolq","commonsense_qa",
+    "argument","scitail","cosmos_qa","social_i_qa",
+    "hellaswag","imdb","winogrande","sst2","qqp","mnli"]
+
+CLF_TASKS = [
+    "cb","rte","sick","mrpc","boolq",
+    "argument","scitail","imdb","sst2","qqp","mnli"]   
+    
+    
+MC_TASKS = [
+    "commonsense_qa","cosmos_qa","social_i_qa",
+    "hellaswag","winogrande"]
 
 def train_and_eval(task,model,output_dir,adapter_config,seed):
     set_seed(seed)
@@ -52,6 +65,8 @@ def train_and_eval(task,model,output_dir,adapter_config,seed):
             model = setup_model(model_name,num_labels,dataset)
             
             # set up adapter config
+            ###########################3
+            #adapter_config = adapters.SeqBnConfig(**config)
             adapter_config = adapters.BnConfig(
                                     output_adapter=config["output_adapter"],
                                     mh_adapter=config["mh_adapter"],
@@ -63,6 +78,8 @@ def train_and_eval(task,model,output_dir,adapter_config,seed):
             
             # set up training args
             final_output = os.path.join(output_dir,task)
+            
+            #default_args = TrainingParameters(**training_args)
             default_args = TrainingParameters(output_dir=final_output,
                                             per_device_train_batch_size=8,
                                             evaluation_strategy="epoch",
@@ -88,18 +105,29 @@ if __name__ == '__main__':
     parser.add_argument("--model_name",type=str,help="TODO",default="bert-base-uncased")
     parser.add_argument("--output_path",type=str,help="TODO",default="C:/Users/Hector Auvinen/Desktop/eval_results/bigger_eval_steps")
     parser.add_argument("--adapter_config_path",type=str,help="TODO",default="../src/configs/adapter_configs.json")
+    parser.add_argument("--training_config_path",type=str,help="TODO",default="../src/configs/training_config.json")
     parser.add_argument("--logging",type=str,default="DEBUG",help="log level")
-    
+    parser.add_argument("--default_adapter",action="store_true",help="TODO")
     args = parser.parse_args()
     
     logging.getLogger().setLevel(level=args.logging)
     
     #outpath = Path(args.output_path)
     seed = 42
-    tasks = [args.task_name]
+    tasks = args.task_name
+    if tasks == "all":
+        tasks = CLF_TASKS
+    else:
+        tasks = [args.task_name]
     model_name = args.model_name
     output_path = args.output_path
     adapter_config_path = args.config_path
-    adapter_config = json_to_dict(adapter_config_path)
     
+    adapter_config = json_to_dict(adapter_config_path)
+    if args.default_adapter:
+        logger.info("Using the first configuration")
+        adapter_config = next(iter(adapter_config.items()))
+    else:
+        logger.info("Using all configurations")
+        
     train_and_eval(tasks,model_name,output_path,adapter_config,seed)
