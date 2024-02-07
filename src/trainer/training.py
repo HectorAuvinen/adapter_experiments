@@ -6,6 +6,7 @@ from adapters import AdapterTrainer
 class TrainingParameters:
     def __init__(self, label_names=["labels"],
                  evaluation_strategy="steps",
+                 save_strategy="steps",
                  learning_rate=1e-4,
                  num_train_epochs=30,
                  per_device_train_batch_size=8,
@@ -23,6 +24,7 @@ class TrainingParameters:
                  ):
         self.label_names = label_names
         self.evaluation_strategy = evaluation_strategy
+        self.save_strategy = save_strategy
         self.learning_rate = learning_rate
         self.num_train_epochs = num_train_epochs
         self.per_device_train_batch_size = per_device_train_batch_size
@@ -51,6 +53,7 @@ def get_training_arguments(args):
     training_args = TrainingArguments(
         label_names=args.label_names,
         evaluation_strategy=args.evaluation_strategy,
+        save_strategy=args.save_strategy,
         learning_rate=args.learning_rate,
         num_train_epochs=args.num_train_epochs,
         per_device_train_batch_size = args.per_device_train_batch_size,
