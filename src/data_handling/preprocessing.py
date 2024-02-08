@@ -19,7 +19,7 @@ def encode_general_classification(data, tokenizer) -> dict:
     """Encode a batch of input data that is in the format text,label"""
     return tokenizer(data["text"],max_length=128,truncation=True,padding="max_length")
 
-def encode_hellaswag(data,tokenizer) -> dict:
+def encode_hellaswag(data,tokenizer,max_length=128) -> dict:
     all_encoded = {"input_ids": [], "attention_mask": []}
     
     for sentence, endings in zip(data["ctx"], data["endings"]):
@@ -28,7 +28,8 @@ def encode_hellaswag(data,tokenizer) -> dict:
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            max_length=128,  # or any max_length that suits your model/context
+            #max_length=128,  # or any max_length that suits your model/context
+            max_length=max_length,
             truncation=True,
             padding="max_length",
         )
@@ -36,7 +37,7 @@ def encode_hellaswag(data,tokenizer) -> dict:
         all_encoded["attention_mask"].append(encoded["attention_mask"])
     return all_encoded
 
-def encode_winogrande(data,tokenizer) -> dict:
+def encode_winogrande(data,tokenizer,max_length=128) -> dict:
     """Encodes a batch of input data using the model tokenizer."""
     all_encoded = {"input_ids": [], "attention_mask": []}
     for sentence, option1,option2 in zip(data["sentence"], data["option1"],data["option2"]):
@@ -45,7 +46,8 @@ def encode_winogrande(data,tokenizer) -> dict:
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            max_length=128,  # or any max_length that suits your model/context
+            #max_length=128,  # or any max_length that suits your model/context
+            max_length=max_length,
             truncation=True,
             padding="max_length",
         )
@@ -57,7 +59,7 @@ def encode_winogrande(data,tokenizer) -> dict:
 
     return all_encoded
 
-def encode_cosmosqa(data,tokenizer) -> dict:
+def encode_cosmosqa(data,tokenizer,max_length=80) -> dict:
     """Encodes a batch of input data using the model tokenizer."""
     all_encoded = {"input_ids": [], "attention_mask": []}
 
@@ -69,7 +71,8 @@ def encode_cosmosqa(data,tokenizer) -> dict:
             sentences_a,
             sentences_b,
             #max_length=128,  # or any max_length that suits your model/context
-            max_length=80,
+            #max_length=80,
+            max_length=max_length,
             truncation=True,
             padding="max_length",
         )
@@ -79,7 +82,7 @@ def encode_cosmosqa(data,tokenizer) -> dict:
 
     return all_encoded
 
-def encode_socialiqa(data,tokenizer) -> dict:
+def encode_socialiqa(data,tokenizer,max_length=128) -> dict:
     all_encoded = {"input_ids":[],"attention_mask":[]}
     for context,question,answera,answerb,answerc in zip(data["context"],data["question"],data["answerA"],data["answerB"],data["answerC"]):
         sentences_a = [context + " " + question for _ in range(3)]
@@ -87,7 +90,8 @@ def encode_socialiqa(data,tokenizer) -> dict:
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            max_length=128,
+            #max_length=128,
+            max_length=max_length,
             truncation=True,
             padding="max_length"
         )
@@ -96,37 +100,37 @@ def encode_socialiqa(data,tokenizer) -> dict:
     
     return all_encoded
 
-def encode_imdb(data,tokenizer) -> dict:
-    return tokenizer(data["text"], max_length=256, truncation=True, padding="max_length")
+def encode_imdb(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["text"], max_length=max_length, truncation=True, padding="max_length")
 
-def encode_sst2(data,tokenizer) -> dict:
-    return tokenizer(data["sentence"],max_length=256,truncation=True,padding="max_length")
+def encode_sst2(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["sentence"],max_length=max_length,truncation=True,padding="max_length")
 
-def encode_mnli(data,tokenizer) -> dict:
-    return tokenizer(data["premise"],data["hypothesis"],max_length=256,truncation=True,padding="max_length")
+def encode_mnli(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["premise"],data["hypothesis"],max_length=max_length,truncation=True,padding="max_length")
 
-def encode_sick(data,tokenizer) -> dict:
-    return tokenizer(data["sentence_A"],data["sentence_B"],max_length=256,truncation=True,padding="max_length")
+def encode_sick(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["sentence_A"],data["sentence_B"],max_length=max_length,truncation=True,padding="max_length")
 
-def encode_rte(data,tokenizer) -> dict:
-    return tokenizer(data["sentence1"],data["sentence2"],max_length=256,truncation=True,padding="max_length")
+def encode_rte(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["sentence1"],data["sentence2"],max_length=max_length,truncation=True,padding="max_length")
 
-def encode_cb(data,tokenizer) -> dict:
-    return(tokenizer(data["premise"],data["hypothesis"],max_length=256,truncation=True,padding="max_length"))
+def encode_cb(data,tokenizer,max_length=256) -> dict:
+    return(tokenizer(data["premise"],data["hypothesis"],max_length=max_length,truncation=True,padding="max_length"))
 
-def encode_mrpc(data,tokenizer) -> dict:
-    return tokenizer(data["sentence1"],data["sentence2"],max_length=256,truncation=True,padding="max_length")
+def encode_mrpc(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["sentence1"],data["sentence2"],max_length=max_length,truncation=True,padding="max_length")
 
-def encode_qqp(data,tokenizer) -> dict:
-    return tokenizer(data["question1"],data["question2"],max_length=256,truncation=True,padding="max_length")
+def encode_qqp(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["question1"],data["question2"],max_length=max_length,truncation=True,padding="max_length")
 
-def encode_argument(data,tokenizer) -> dict:
-    return tokenizer(data["sentence"], max_length=256, truncation=True, padding="max_length")
+def encode_argument(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["sentence"], max_length=max_length, truncation=True, padding="max_length")
 
-def encode_boolq(data,tokenizer) -> dict:
-    return tokenizer(data["passage"],data["question"],max_length=256,truncation=True,padding="max_length",return_overflowing_tokens=True)
+def encode_boolq(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["passage"],data["question"],max_length=max_length,truncation=True,padding="max_length",return_overflowing_tokens=True)
 
-def encode_csqa(data, tokenizer) -> dict:
+def encode_csqa(data, tokenizer,max_length=128) -> dict:
     all_encoded = {"input_ids":[],"attention_mask":[]}
     for question,choices in zip(data["question"],data["choices"]):
         sentences_a = [question for choice_text in choices["text"]]
@@ -134,7 +138,8 @@ def encode_csqa(data, tokenizer) -> dict:
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            max_length=128,
+            #max_length=128,
+            max_length=max_length,
             truncation=True,
             padding="max_length"
         )
@@ -142,17 +147,17 @@ def encode_csqa(data, tokenizer) -> dict:
         all_encoded["attention_mask"].append(encoded["attention_mask"])
     return all_encoded
 
-def encode_scitail(data,tokenizer) -> dict:
-    return tokenizer(data["premise"],data["hypothesis"],max_length=256,truncation=True,padding="max_length")
+def encode_scitail(data,tokenizer,max_length=256) -> dict:
+    return tokenizer(data["premise"],data["hypothesis"],max_length=max_length,truncation=True,padding="max_length")
 
-def encode_wrapper(data, tokenizer, encoding_func, **kwargs):
+def encode_wrapper(data, tokenizer, encoding_func,max_length, **kwargs):
     def wrapper(batch):
-        return encoding_func(batch, tokenizer, **kwargs)
+        return encoding_func(batch, tokenizer,max_length, **kwargs)
     return wrapper
 
-def preprocess_dataset(dataset,encoding_func,tokenizer):
+def preprocess_dataset(dataset,encoding_func,tokenizer,max_length):
     # Encode the input data
-    dataset = dataset.map(encode_wrapper(dataset,tokenizer,encoding_func), batched=True)
+    dataset = dataset.map(encode_wrapper(dataset,tokenizer,encoding_func,max_length), batched=True)
     print("mapped")
     # The transformers model expects the target class column to be named "labels"
     # Check if renaming is necessary based on your dataset structure

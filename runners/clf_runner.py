@@ -43,7 +43,26 @@ MC_TASKS = [
     "commonsense_qa","cosmos_qa","social_i_qa",
     "hellaswag","winogrande"]
 
-def train_and_eval(task,model,output_dir,adapter_config,training_config,seed):
+MAX_LENS = {
+    "cb":256,
+    "rte":256,
+    "sick":256,
+    "mrpc":256,
+    "boolq":256,
+    "commonsense_qa":128,
+    "argument":256,
+    "scitail":256,
+    "cosmos_qa":80,
+    "social_i_qa":128,
+    "hellaswag":128,
+    "imdb":256,
+    "winogrande":128,
+    "sst2":256,
+    "qqp":256,
+    "mnli":256
+}
+
+def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,seed):
     set_seed(seed)
     for name,config in adapter_config.items():
         logger.info(f"using config {name}")
@@ -67,7 +86,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,seed):
             # get encoding method for particular task
             encode = get_encoding(task)
             # apply encoding
-            dataset = preprocess_dataset(data,encode,tokenizer)
+            dataset = preprocess_dataset(data,encode,tokenizer,max_length)
             # get label count
             num_labels = get_label_count(dataset)
             # set up model (head with num labels)
@@ -129,6 +148,7 @@ if __name__ == '__main__':
     parser.add_argument("--max_length",type=int,help="TODO",default=None)
     parser.add_argument("--train_batch_size",help="TODO",default=None)
     parser.add_argument("--eval_batch_size",help="TODO",default=None)
+    parser.add_argument("--max_len",type=str,help="TODO",default="std")
     #
     #"evaluation_strategy":"epoch",
     #"save_strategy":"epoch",
@@ -164,5 +184,14 @@ if __name__ == '__main__':
         adapter_config = {first_key: adapter_config[first_key]}
     else:
         logger.info("Using all configurations")
-        
-    train_and_eval(tasks,model_name,output_path,adapter_config,training_args,seed)
+    
+    max_len = args.max_len
+    if max_len == "max":
+        max_len = None
+    elif max_len == "std":
+        max_len = MAX_LENS[args.task_name]
+    else:
+        max_len = int(max_len)
+    
+    print("MAX LEN",max_len)
+    train_and_eval(tasks,model_name,output_path,adapter_config,training_args,max_len,seed)
