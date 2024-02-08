@@ -52,7 +52,7 @@ MAX_LENS = {
     "commonsense_qa":128,
     "argument":256,
     "scitail":256,
-    "cosmos_qa":80,
+    "cosmos_qa":128,
     "social_i_qa":128,
     "hellaswag":128,
     "imdb":256,
@@ -62,7 +62,7 @@ MAX_LENS = {
     "mnli":256
 }
 
-def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,seed):
+def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,train_batch_size,seed):
     set_seed(seed)
     for name,config in adapter_config.items():
         logger.info(f"using config {name}")
@@ -104,13 +104,20 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             #                        non_linearity=config["non_linearity"])
 
             # add adapter
-            model = add_clf_adapter(task_name=task,model=model,num_labels=num_labels,adapter_config=adapter_config)
-            
+            if task in CLF_TASKS:
+                print("Adding classification adapter")
+                model = add_clf_adapter(task_name=task,model=model,num_labels=num_labels,adapter_config=adapter_config)
+            elif task in MC_TASKS:
+                print("Adding multiple choice adapter")
+                model = add_mc_adapter(task_name=task,model=model,num_labels=num_labels,adapter_config=adapter_config)
+            else:
+                raise Exception("Task not defined in tasks")
             # set up training args
             final_output = os.path.join(output_dir,task)
             training_config["output_dir"] = final_output
             
             default_args = TrainingParameters(**training_config)
+                
             print(f"Training arguments set up: {adapter_config}")
             #default_args = TrainingParameters(**training_args)
             #default_args = TrainingParameters(output_dir=final_output,
@@ -122,6 +129,10 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             
             # TODO: FIX THIS BUG WHERE "linear" becomes ["linear"]
             default_args.lr_scheduler_type = "linear"
+            if train_batch_size:
+                print("###########################################################################################")
+                print(f"Changing batchs size from {default_args.per_device_train_batch_size} to {train_batch_size}")
+                default_args.per_device_train_batch_size = train_batch_size
             train_args = get_training_arguments(default_args)
             
             # set up trainer
@@ -175,6 +186,7 @@ if __name__ == '__main__':
     output_path = args.output_path
     adapter_config_path = args.adapter_config_path
     training_config_path = args.training_config_path
+    train_batch_size = int(args.train_batch_size)
     
     adapter_config = json_to_dict(adapter_config_path)
     training_args = json_to_dict(training_config_path)
@@ -194,4 +206,4 @@ if __name__ == '__main__':
         max_len = int(max_len)
     
     print("MAX LEN",max_len)
-    train_and_eval(tasks,model_name,output_path,adapter_config,training_args,max_len,seed)
+    train_and_eval(tasks,model_name,output_path,adapter_config,training_args,max_len,train_batch_size,seed)
