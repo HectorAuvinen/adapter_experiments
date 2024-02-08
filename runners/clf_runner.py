@@ -112,6 +112,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,seed):
             
             # evaluate and write results to file
             eval_results = trainer.evaluate()
+            print(eval_results)
             write_eval_results(eval_results,output_dir,task,trainer,adapter_config)
 
 
