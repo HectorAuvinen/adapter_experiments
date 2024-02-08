@@ -160,7 +160,8 @@ if __name__ == '__main__':
     training_args = json_to_dict(training_config_path)
     if not args.multiple_adapters:
         logger.info("Using the first configuration")
-        adapter_config = next(iter(adapter_config.items()))
+        first_key = list(adapter_config.keys())[0]  # Get the first key
+        adapter_config = {first_key: adapter_config[first_key]}
     else:
         logger.info("Using all configurations")
         
