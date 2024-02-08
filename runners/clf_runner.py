@@ -129,6 +129,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             
             # TODO: FIX THIS BUG WHERE "linear" becomes ["linear"]
             default_args.lr_scheduler_type = "linear"
+            print("TRAIN BATCH SIZE:",train_batch_size)
             if train_batch_size:
                 print("###########################################################################################")
                 print(f"Changing batchs size from {default_args.per_device_train_batch_size} to {train_batch_size}")
@@ -186,7 +187,7 @@ if __name__ == '__main__':
     output_path = args.output_path
     adapter_config_path = args.adapter_config_path
     training_config_path = args.training_config_path
-    train_batch_size = int(args.train_batch_size)
+    train_batch_size = args.train_batch_size if not args.train_batch_size else int(args.train_batch_size)
     
     adapter_config = json_to_dict(adapter_config_path)
     training_args = json_to_dict(training_config_path)
