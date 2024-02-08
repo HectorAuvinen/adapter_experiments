@@ -77,7 +77,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,seed):
             ###########################3
             #adapter_config = adapters.SeqBnConfig(**config)
             adapter_config = adapters.SeqBnConfig(**config)
-            logger.info(f"Adapter config set up: {adapter_config}")
+            print(f"Adapter config set up: {adapter_config}")
             #adapter_config = adapters.BnConfig(
             #                        output_adapter=config["output_adapter"],
             #                        mh_adapter=config["mh_adapter"],
@@ -92,7 +92,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,seed):
             training_config["output_dir"] = final_output
             
             default_args = TrainingParameters(**training_config)
-            logger.info(f"Training arguments set up: {adapter_config}")
+            print(f"Training arguments set up: {adapter_config}")
             #default_args = TrainingParameters(**training_args)
             #default_args = TrainingParameters(output_dir=final_output,
             #                                per_device_train_batch_size=8,
