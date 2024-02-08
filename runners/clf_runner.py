@@ -127,7 +127,6 @@ if __name__ == '__main__':
     parser.add_argument("--max_length",type=int,help="TODO",default=None)
     parser.add_argument("--train_batch_size",help="TODO",default=None)
     parser.add_argument("--eval_batch_size",help="TODO",default=None)
-    parser.add_argument("--")
     #
     #"evaluation_strategy":"epoch",
     #"save_strategy":"epoch",
@@ -157,7 +156,7 @@ if __name__ == '__main__':
     
     adapter_config = json_to_dict(adapter_config_path)
     training_args = json_to_dict(training_config_path)
-    if args.default_adapter:
+    if not args.multiple_adapters:
         logger.info("Using the first configuration")
         adapter_config = next(iter(adapter_config.items()))
     else:
