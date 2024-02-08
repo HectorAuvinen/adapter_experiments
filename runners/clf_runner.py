@@ -152,7 +152,7 @@ if __name__ == '__main__':
     parser.add_argument("--task_name",type=str,help="TODO",default="cb")
     parser.add_argument("--model_name",type=str,help="TODO",default="bert-base-uncased")
     parser.add_argument("--output_path",type=str,help="TODO",default="outputs/evals")
-    parser.add_argument("--adapter_config_path",type=str,help="TODO",default="src/configs/adapter_configs.json")
+    parser.add_argument("--adapter_config_path",type=str,help="TODO",default="src/configs/adapter_config.json")
     parser.add_argument("--training_config_path",type=str,help="TODO",default="src/configs/training_config.json")
     parser.add_argument("--logging",type=str,default="INFO",help="log level")
     parser.add_argument("--multiple_adapters",action="store_true",help="TODO")
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     training_args = json_to_dict(training_config_path)
     if not args.multiple_adapters:
         logger.info("Using the first configuration")
-        first_key = list(adapter_config.keys())[0]  # Get the first key
+        first_key = list(adapter_config.keys())[0]
         adapter_config = {first_key: adapter_config[first_key]}
     else:
         logger.info("Using all configurations")
