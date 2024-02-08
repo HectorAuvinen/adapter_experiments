@@ -125,7 +125,7 @@ if __name__ == '__main__':
     parser.add_argument("--adapter_config_path",type=str,help="TODO",default="src/configs/adapter_configs.json")
     parser.add_argument("--training_config_path",type=str,help="TODO",default="src/configs/training_config.json")
     parser.add_argument("--logging",type=str,default="INFO",help="log level")
-    parser.add_argument("--multiple_adapters",action="store_false",help="TODO")
+    parser.add_argument("--multiple_adapters",action="store_true",help="TODO")
     parser.add_argument("--max_length",type=int,help="TODO",default=None)
     parser.add_argument("--train_batch_size",help="TODO",default=None)
     parser.add_argument("--eval_batch_size",help="TODO",default=None)
