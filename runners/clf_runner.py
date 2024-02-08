@@ -52,14 +52,14 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,seed):
         if not os.path.exists(output_dir):
             # If the folder doesn't exist, create it
             os.makedirs(output_dir)
-            logger.info(f"Folder '{output_dir}' created.")
+            print(f"Folder '{output_dir}' created.")
         else:
-            logger.info(f"Folder '{output_dir}' already exists.")
+            print(f"Folder '{output_dir}' already exists.")
         
-            logger.info(f"**********************************RUNNING CONFIG {name}*****************************")
+            print(f"**********************************RUNNING CONFIG {name}*****************************")
 
         for task in tasks:
-            logger.info(f"**********************************RUNNING TASK {task}*****************************")
+            print(f"**********************************RUNNING TASK {task}*****************************")
             # load dataset
             data = load_hf_dataset(task,debug=False)
             # get tokenizer (bert)
