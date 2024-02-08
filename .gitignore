@@ -9,3 +9,9 @@ __pycache__
 
 # ignore env
 adapter_env
+
+#
+.vscode/
+
+#
+outputs/

@@ -5,14 +5,14 @@ from adapters import AdapterTrainer
 
 class TrainingParameters:
     def __init__(self, label_names=["labels"],
-                 evaluation_strategy="steps",
-                 save_strategy="steps",
+                 evaluation_strategy="epoch",
+                 save_strategy="epoch",
                  learning_rate=1e-4,
                  num_train_epochs=30,
                  per_device_train_batch_size=8,
                  per_device_eval_batch_size=8,
-                 eval_steps=50,
-                 logging_steps=200,
+                 eval_steps=1,
+                 logging_steps=1000,
                  output_dir="/eval_results",
                  overwrite_output_dir=True,
                  remove_unused_columns=False,
