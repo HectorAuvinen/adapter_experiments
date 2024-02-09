@@ -145,7 +145,8 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             eval_results = trainer.evaluate()
             print("results",eval_results)
             print("output_dir",output_dir)
-            write_eval_results(eval_results,output_dir,task,trainer,adapter_config)
+            write_eval_results(eval_results,output_dir,task,trainer,adapter_config,
+                               default_args.per_device_train_batch_size,max_length)
 
 
 if __name__ == '__main__':

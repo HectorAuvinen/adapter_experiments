@@ -20,7 +20,7 @@ class TrainingParameters:
                  load_best_model_at_end=True,
                  metric_for_best_model = "eval_accuracy",
                  early_stopping_patience=3,
-                 save_total_limit=5
+                 save_total_limit=3
                  ):
         self.label_names = label_names
         self.evaluation_strategy = evaluation_strategy
