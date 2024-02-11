@@ -116,7 +116,7 @@ def encode_rte(data,tokenizer,max_length=256) -> dict:
     return tokenizer(data["sentence1"],data["sentence2"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_cb(data,tokenizer,max_length=256) -> dict:
-    return(tokenizer(data["premise"],data["hypothesis"],max_length=max_length,truncation=True,padding="max_length"))
+    return tokenizer(data["premise"],data["hypothesis"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_mrpc(data,tokenizer,max_length=256) -> dict:
     return tokenizer(data["sentence1"],data["sentence2"],max_length=max_length,truncation=True,padding="max_length")
@@ -128,7 +128,9 @@ def encode_argument(data,tokenizer,max_length=256) -> dict:
     return tokenizer(data["sentence"], max_length=max_length, truncation=True, padding="max_length")
 
 def encode_boolq(data,tokenizer,max_length=256) -> dict:
-    return tokenizer(data["passage"],data["question"],max_length=max_length,truncation=True,padding="max_length",return_overflowing_tokens=True)
+    for i in data:
+        print(i)
+    return tokenizer(data["passage"],data["question"],max_length=256,truncation=True,padding="max_length",return_overflowing_tokens=True)
 
 def encode_csqa(data, tokenizer,max_length=128) -> dict:
     all_encoded = {"input_ids":[],"attention_mask":[]}

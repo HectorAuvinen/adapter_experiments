@@ -62,7 +62,7 @@ MAX_LENS = {
     "mnli":256
 }
 
-def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,train_batch_size,seed):
+def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,train_batch_size,eval_column,seed):
     set_seed(seed)
     for name,config in adapter_config.items():
         logger.info(f"using config {name}")
@@ -138,6 +138,9 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             
             # set up trainer
             trainer = get_trainer(train_args,dataset,model,early_stopping=3)
+            #
+            if eval_column:
+                trainer.eval_column = eval_column
             # train
             trainer.train()
             
@@ -162,6 +165,7 @@ if __name__ == '__main__':
     parser.add_argument("--train_batch_size",help="TODO",default=None)
     parser.add_argument("--eval_batch_size",help="TODO",default=None)
     parser.add_argument("--max_len",type=str,help="TODO",default="std")
+    parser.add_argument("--eval_column",type="str",help="TODO",default=None)
     #
     #"evaluation_strategy":"epoch",
     #"save_strategy":"epoch",
@@ -189,6 +193,7 @@ if __name__ == '__main__':
     adapter_config_path = args.adapter_config_path
     training_config_path = args.training_config_path
     train_batch_size = args.train_batch_size if not args.train_batch_size else int(args.train_batch_size)
+    eval_column = args.eval_column
     
     adapter_config = json_to_dict(adapter_config_path)
     training_args = json_to_dict(training_config_path)
@@ -208,4 +213,4 @@ if __name__ == '__main__':
         max_len = int(max_len)
     
     print("MAX LEN",max_len)
-    train_and_eval(tasks,model_name,output_path,adapter_config,training_args,max_len,train_batch_size,seed)
+    train_and_eval(tasks,model_name,output_path,adapter_config,training_args,max_len,train_batch_size,eval_column,seed)
