@@ -165,7 +165,7 @@ if __name__ == '__main__':
     parser.add_argument("--train_batch_size",help="TODO",default=None)
     parser.add_argument("--eval_batch_size",help="TODO",default=None)
     parser.add_argument("--max_len",type=str,help="TODO",default="std")
-    parser.add_argument("--eval_column",type="str",help="TODO",default=None)
+    parser.add_argument("--eval_column",type=str,help="TODO",default=None)
     #
     #"evaluation_strategy":"epoch",
     #"save_strategy":"epoch",
