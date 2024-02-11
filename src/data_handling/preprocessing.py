@@ -1,5 +1,5 @@
 from .utils import process_labels
-from transformers import BertTokenizer
+from transformers import BertTokenizer,AutoTokenizer
     
 
 
@@ -7,7 +7,9 @@ def get_tokenizer(model_name):
     if "bert" in model_name:
         print("using bert tokenizer")
         return BertTokenizer.from_pretrained(model_name)
-    print("not using bert tokenizer")
+    else:
+        print("not using bert tokenizer")
+        return AutoTokenizer.from_pretrained(model_name)
     
 def map_clf_dataset(dataset, encode:callable):
     dataset = dataset.map(encode,batched=True)

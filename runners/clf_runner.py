@@ -137,10 +137,8 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             train_args = get_training_arguments(default_args)
             
             # set up trainer
-            trainer = get_trainer(train_args,dataset,model,early_stopping=3)
-            #
-            if eval_column:
-                trainer.eval_column = eval_column
+            trainer = get_trainer(train_args,dataset,model,early_stopping=3,custom_eval=eval_column)
+
             # train
             trainer.train()
             
