@@ -132,7 +132,7 @@ def encode_argument(data,tokenizer,max_length=256) -> dict:
 def encode_boolq(data,tokenizer,max_length=256) -> dict:
     for i in data:
         print(i)
-    return tokenizer(data["passage"],data["question"],max_length=256,truncation=True,padding="max_length",return_overflowing_tokens=True)
+    return tokenizer(data["passage"],data["question"],max_length=256,truncation=True,padding="max_length",return_overflowing_tokens=False)
 
 def encode_csqa(data, tokenizer,max_length=128) -> dict:
     all_encoded = {"input_ids":[],"attention_mask":[]}

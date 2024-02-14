@@ -20,7 +20,7 @@ class TrainingParameters:
                  load_best_model_at_end=True,
                  metric_for_best_model = "eval_accuracy",
                  early_stopping_patience=3,
-                 save_total_limit=3
+                 save_total_limit=2
                  ):
         self.label_names = label_names
         self.evaluation_strategy = evaluation_strategy
@@ -77,7 +77,7 @@ def get_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None):
         train_dataset=dataset["train"],
         eval_dataset=dataset["validation"] if not custom_eval else dataset[custom_eval],
         compute_metrics=calculate_accuracy,
-        callbacks= [EarlyStoppingCallback(early_stopping_patience=early_stopping)]
+        callbacks= [EarlyStoppingCallback(early_stopping_patience=early_stopping)] if early_stopping else None
         #callbacks= [EarlyStoppingCallback(early_stopping_patience=training_args.early_stopping_patience)]
     )
     return trainer

@@ -4,6 +4,8 @@ import os
 import json
 import argparse
 import logging
+import time
+import shutil
 from pathlib import Path
 
 #project_root = os.path.dirname(os.getcwd())
@@ -23,13 +25,14 @@ from src.data_handling.preprocessing import *
 from src.models.model_setup import *
 from src.trainer.training import *
 from src.trainer.file_utils import *
+from src.constants.constants import *
 from transformers import set_seed
 
 logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s : %(message)s')
 logger = logging.getLogger(__name__)
 
 root = Path(__file__).resolve().parent
-ALL_TASKS = [
+"""ALL_TASKS = [
     "cb","rte","sick","mrpc","boolq","commonsense_qa",
     "argument","scitail","cosmos_qa","social_i_qa",
     "hellaswag","imdb","winogrande","sst2","qqp","mnli"]
@@ -62,23 +65,67 @@ MAX_LENS = {
     "mnli":256
 }
 
-def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,train_batch_size,eval_column,seed):
-    set_seed(seed)
+MODEL_MAP = {"bert-base-uncased":"bert-base-uncased",
+             "bert-tiny-uncased":"google/bert_uncased_L-2_H-128_A-2",
+             "bert-mini-uncased":"google/bert_uncased_L-4_H-256_A-4"}
+
+
+PREDEFINED_SEEDS = [32, 18, 19, 42,512, 1111, 2048, 1234, 8192, 12345]"""
+
+def get_seeds(n_seeds):
+    """
+    Returns a consistent list of seeds based on the user's input.
+    
+    :param n_seeds: Number of seeds requested by the user.
+    :return: A list of seeds.
+    """
+    # Ensure the requested number of seeds does not exceed the predefined list's length
+    if n_seeds > len(PREDEFINED_SEEDS):
+        raise ValueError(f"Requested number of seeds exceeds the limit of {len(PREDEFINED_SEEDS)}")
+    
+    # Slice the PREDEFINED_SEEDS list to get the desired number of seeds
+    return PREDEFINED_SEEDS[:n_seeds]
+
+
+def get_key_by_value(value,map):
+    for key, val in map.items():
+        if val == value:
+            return key
+    return None
+
+def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed):
+    # the parent folder for all experiments: e.g. target_folder/bert-base-uncased
+    model_folder_name = get_key_by_value(model,MODEL_MAP)
+    result_root = Path(output_dir)/Path(model_folder_name)
+    # the task specific folder in the experiments parent folder: e.g. target_folder/bert-base-uncased/cb
+    #dataset_results = Path(result_root)/Path(task.split("/")[-1])
+        
     for name,config in adapter_config.items():
         logger.info(f"using config {name}")
         
-        output_dir = os.path.join(output_dir,name)
-        if not os.path.exists(output_dir):
+        # the configuration specific folder in the experiments parent folder: e.g. target_folder/bert-base-uncased/redf_16
+        config_dir = os.path.join(result_root,name)
+        if not os.path.exists(config_dir):
             # If the folder doesn't exist, create it
+            os.makedirs(config_dir)
+            print(f"Folder '{config_dir}' created.")
+        else:
+            print(f"Folder '{config_dir}' already exists.")
+        
+        output_dir = os.path.join(config_dir,str(seed))
+        if not os.path.exists(output_dir):
             os.makedirs(output_dir)
             print(f"Folder '{output_dir}' created.")
         else:
             print(f"Folder '{output_dir}' already exists.")
-        
-            print(f"**********************************RUNNING CONFIG {name}*****************************")
+            
+        print(f"**********************************RUNNING CONFIG {name}*****************************")
 
         for task in tasks:
             print(f"**********************************RUNNING TASK {task}*****************************")
+            
+            # set seed
+            set_seed(seed)
             # load dataset
             data = load_hf_dataset(task,debug=False)
             # get tokenizer (bert)
@@ -137,33 +184,50 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             train_args = get_training_arguments(default_args)
             
             # set up trainer
-            trainer = get_trainer(train_args,dataset,model,early_stopping=3,custom_eval=eval_column)
+            trainer = get_trainer(train_args,dataset,model,early_stopping=early_stopping,custom_eval=eval_column)
 
             # train
+            start_time = time.time()
             trainer.train()
+            end_time = time.time()
+            
+            training_time = end_time - start_time
             
             # evaluate and write results to file
             eval_results = trainer.evaluate()
+            if not keep_checkpoints:
+                checkpoint_dir = Path(final_output)
+                shutil.rmtree(checkpoint_dir)
+                try:
+                    shutil.rmtree(checkpoint_dir)
+                    print(f"Successfully removed directory: {checkpoint_dir}")
+                except Exception as e:
+                    print(f"Error removing directory {checkpoint_dir}: {e}")
+                
             print("results",eval_results)
             print("output_dir",output_dir)
             write_eval_results(eval_results,output_dir,task,trainer,adapter_config,
-                               default_args.per_device_train_batch_size,max_length)
+                            default_args.per_device_train_batch_size,max_length,training_time)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="TODO")
     parser.add_argument("--task_name",type=str,help="TODO",default="cb")
-    parser.add_argument("--model_name",type=str,help="TODO",default="bert-base-uncased")
+    parser.add_argument("--model_name",type=str,help="TODO",default="bert-tiny-uncased")
     parser.add_argument("--output_path",type=str,help="TODO",default="outputs/evals")
     parser.add_argument("--adapter_config_path",type=str,help="TODO",default="src/configs/adapter_config.json")
     parser.add_argument("--training_config_path",type=str,help="TODO",default="src/configs/training_config.json")
     parser.add_argument("--logging",type=str,default="INFO",help="log level")
-    parser.add_argument("--multiple_adapters",action="store_true",help="TODO")
+    parser.add_argument("--single_config",action="store_true",help="TODO")
     parser.add_argument("--max_length",type=int,help="TODO",default=None)
     parser.add_argument("--train_batch_size",help="TODO",default=None)
     parser.add_argument("--eval_batch_size",help="TODO",default=None)
     parser.add_argument("--max_len",type=str,help="TODO",default="std")
     parser.add_argument("--eval_column",type=str,help="TODO",default=None)
+    parser.add_argument("--num_seeds",type=int,help="TODO",default=3)
+    parser.add_argument("--early_stopping",type=int,help="TODO",default=3)
+    parser.add_argument("--keep_checkpoints",action="store_true")
+    
     #
     #"evaluation_strategy":"epoch",
     #"save_strategy":"epoch",
@@ -180,22 +244,33 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(level=args.logging)
     
     #outpath = Path(args.output_path)
-    seed = 42
+    # seed = [14,42,808]
+    seeds = get_seeds(args.num_seeds)
+    
     tasks = args.task_name
     if tasks == "all":
+        tasks = ALL_TASKS
+    elif tasks == "subset":
+        tasks = SUBSET_TASKS
+    elif tasks == "clf":
         tasks = CLF_TASKS
+    elif tasks == "mc":
+        tasks = MC_TASKS
     else:
         tasks = [args.task_name]
-    model_name = args.model_name
+    #model_name = args.model_name
     output_path = args.output_path
     adapter_config_path = args.adapter_config_path
     training_config_path = args.training_config_path
     train_batch_size = args.train_batch_size if not args.train_batch_size else int(args.train_batch_size)
+    early_stopping = args.early_stopping
     eval_column = args.eval_column
+    keep_checkpoints = args.keep_checkpoints
     
     adapter_config = json_to_dict(adapter_config_path)
     training_args = json_to_dict(training_config_path)
-    if not args.multiple_adapters:
+    
+    if args.single_config:
         logger.info("Using the first configuration")
         first_key = list(adapter_config.keys())[0]
         adapter_config = {first_key: adapter_config[first_key]}
@@ -210,5 +285,11 @@ if __name__ == '__main__':
     else:
         max_len = int(max_len)
     
+    #
+    model_name = MODEL_MAP[args.model_name]
+    
     print("MAX LEN",max_len)
-    train_and_eval(tasks,model_name,output_path,adapter_config,training_args,max_len,train_batch_size,eval_column,seed)
+    for seed in seeds:
+        train_and_eval(tasks,model_name,output_path,adapter_config,training_args,
+                       max_len,train_batch_size,eval_column,early_stopping,keep_checkpoints,
+                       seed)
