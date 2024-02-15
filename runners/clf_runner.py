@@ -123,7 +123,12 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
 
         for task in tasks:
             print(f"**********************************RUNNING TASK {task}*****************************")
-            
+            if max_length == "max":
+                max_length = None
+            elif max_length == "std":
+                max_length = MAX_LENS[task]
+            else:
+                max_length = int(max_length)
             # set seed
             set_seed(seed)
             # load dataset
@@ -278,18 +283,24 @@ if __name__ == '__main__':
         logger.info("Using all configurations")
     
     max_len = args.max_len
+    """    
     if max_len == "max":
         max_len = None
     elif max_len == "std":
         max_len = MAX_LENS[args.task_name]
     else:
         max_len = int(max_len)
-    
+    """
     #
     model_name = MODEL_MAP[args.model_name]
     
     print("MAX LEN",max_len)
+    train_start = time.time()
     for seed in seeds:
         train_and_eval(tasks,model_name,output_path,adapter_config,training_args,
                        max_len,train_batch_size,eval_column,early_stopping,keep_checkpoints,
                        seed)
+    
+    train_end = time.time()
+    total_time = train_end - train_start
+    print("TOTAL TIME TRAINED",total_time)

@@ -1,3 +1,15 @@
+
+GLUE_TASKS = ['ax', 'cola', 'mnli', 'mnli_matched', 'mnli_mismatched', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnli']
+SUPER_GLUE_TASKS = ['axb', 'axg', 'boolq', 'cb', 'copa', 'multirc', 'record', 'rte', 'wic', 'wsc', 'wsc.fixed']
+
+###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
+###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
+###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
+DISK_TASKS = {"argument":"C:/Users/Hector Auvinen/Desktop/UKP_sentential_argument_mining/hf_data/argument_mining"}
+###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
+###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
+###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
+
 ALL_TASKS = [
     "cb","rte","sick","mrpc","boolq","commonsense_qa",
     "argument","scitail","cosmos_qa","social_i_qa",

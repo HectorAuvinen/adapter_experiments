@@ -1,10 +1,26 @@
 from datasets import load_dataset,DatasetDict,ClassLabel,load_from_disk
+import os
+import sys
 import logging
+
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the absolute path to the root of the project
+project_root = os.path.dirname(script_dir)
+
+# Add the project root to the sys.path
+sys.path.insert(0, project_root)
+
+
+from src.constants.constants import *
+
 
 GLUE_TASKS = ['ax', 'cola', 'mnli', 'mnli_matched', 'mnli_mismatched', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnli']
 SUPER_GLUE_TASKS = ['axb', 'axg', 'boolq', 'cb', 'copa', 'multirc', 'record', 'rte', 'wic', 'wsc', 'wsc.fixed']
 DISK_TASKS = {"argument":"C:/Users/Hector Auvinen/Desktop/UKP_sentential_argument_mining/hf_data/argument_mining"}
-class_label_bool = ClassLabel(num_classes=2,names=["False","True"])
+
+# class_label_bool = ClassLabel(num_classes=2,names=["False","True"])
 
 logging.basicConfig(
     level=logging.INFO,  # Set the logging level as needed
@@ -12,9 +28,9 @@ logging.basicConfig(
     filename="my_log_file.log"  # Specify the log file name
 )
 
-def boolean_to_int_label(data):
-    data["label"] = class_label_bool.str2int(str(data["label"]))
-    return data
+#def boolean_to_int_label(data):
+#    data["label"] = class_label_bool.str2int(str(data["label"]))
+#    return data
 
 def load_hf_dataset(task_name:str,
                     debug:bool=False) -> DatasetDict:

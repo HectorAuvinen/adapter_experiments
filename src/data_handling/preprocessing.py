@@ -4,11 +4,20 @@ from transformers import BertTokenizer,AutoTokenizer
 
 
 def get_tokenizer(model_name):
+    """
+    Get the tokenizer given a model name (e.g. bert-base-uncased)
+
+    Args:
+        model_name (str): Model name
+
+    Returns:
+        Union[BertTokenizer,AutoTokenizer]: Tokenizer for the model
+    """
     if "bert" in model_name:
         print("using bert tokenizer")
         return BertTokenizer.from_pretrained(model_name)
     else:
-        print("not using bert tokenizer")
+        print("using auto tokenizer")
         return AutoTokenizer.from_pretrained(model_name)
     
 def map_clf_dataset(dataset, encode:callable):
@@ -17,11 +26,32 @@ def map_clf_dataset(dataset, encode:callable):
     dataset.set_format(type="torch",columns=["input_ids","attention_mask","labels"])
     return dataset
 
-def encode_general_classification(data, tokenizer) -> dict:
-    """Encode a batch of input data that is in the format text,label"""
+def encode_general_classification(data, tokenizer):
+    """
+    Encode a batch of input data that is in the format text,label
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["text"],max_length=128,truncation=True,padding="max_length")
 
-def encode_hellaswag(data,tokenizer,max_length=128) -> dict:
+def encode_hellaswag(data,tokenizer,max_length=128):
+    """
+    Encode a batch of input data. The context (full sentence / combination of ctx_a,ctx_b) is copied for all four
+    possible endings
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     all_encoded = {"input_ids": [], "attention_mask": []}
     
     for sentence, endings in zip(data["ctx"], data["endings"]):
@@ -40,7 +70,18 @@ def encode_hellaswag(data,tokenizer,max_length=128) -> dict:
     return all_encoded
 
 def encode_winogrande(data,tokenizer,max_length=128) -> dict:
-    """Encodes a batch of input data using the model tokenizer."""
+    """
+    Encode a batch of input data. The sentence is copied for both possible options that can fill
+    in the blank.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     all_encoded = {"input_ids": [], "attention_mask": []}
     for sentence, option1,option2 in zip(data["sentence"], data["option1"],data["option2"]):
         sentences_a = [sentence for _ in range(2)]
@@ -62,7 +103,18 @@ def encode_winogrande(data,tokenizer,max_length=128) -> dict:
     return all_encoded
 
 def encode_cosmosqa(data,tokenizer,max_length=80) -> dict:
-    """Encodes a batch of input data using the model tokenizer."""
+    """
+    Encode a batch of input data. The sentence is copied for both possible options that can fill
+    in the blank.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     all_encoded = {"input_ids": [], "attention_mask": []}
 
     #for sentence, answer0,answer1,answer2,answer3,label in zip(data["context"], data["answer0"],data["answer1"],data["answer2"],data["answer3"], data["label"]):
@@ -85,6 +137,17 @@ def encode_cosmosqa(data,tokenizer,max_length=80) -> dict:
     return all_encoded
 
 def encode_socialiqa(data,tokenizer,max_length=128) -> dict:
+    """
+    Encode a batch of input data. The context and question are combined and copied for all possible answers to the question.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     all_encoded = {"input_ids":[],"attention_mask":[]}
     for context,question,answera,answerb,answerc in zip(data["context"],data["question"],data["answerA"],data["answerB"],data["answerC"]):
         sentences_a = [context + " " + question for _ in range(3)]
@@ -103,38 +166,160 @@ def encode_socialiqa(data,tokenizer,max_length=128) -> dict:
     return all_encoded
 
 def encode_imdb(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. The text is encoded and used to infer a classification label.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["text"], max_length=max_length, truncation=True, padding="max_length")
 
 def encode_sst2(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. The text is encoded and used to infer a classification label.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["sentence"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_mnli(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. Premise and hypothesis are encoded and used to infer an entailment label.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["premise"],data["hypothesis"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_sick(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. Sentence_A and sentence_B are encoded and used to infer an entailment label.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["sentence_A"],data["sentence_B"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_rte(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. Sentence1 and sentence2 are encoded and used to infer an entailment label (binary).
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["sentence1"],data["sentence2"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_cb(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. The premise and hypothesis are encoded and used to infer an entailment label.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["premise"],data["hypothesis"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_mrpc(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. Sentence1 and Sentence2 are encoded and used to infer an equivalency label (binary) for the sentences.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["sentence1"],data["sentence2"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_qqp(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. Question1 and question2 are encoded and used to infer an equivalency label (binary) for the questions.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["question1"],data["question2"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_argument(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. The text is encoded and used to infer a label reflecting whether the sentence is an argument for, against
+    or is not an argument.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["sentence"], max_length=max_length, truncation=True, padding="max_length")
 
 def encode_boolq(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. A text passage and a question are encoded and used to infer a boolean answer label.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     for i in data:
         print(i)
-    return tokenizer(data["passage"],data["question"],max_length=256,truncation=True,padding="max_length",return_overflowing_tokens=False)
+    return tokenizer(data["passage"],data["question"],max_length=max_length,truncation=True,padding="max_length",return_overflowing_tokens=False)
 
 def encode_csqa(data, tokenizer,max_length=128) -> dict:
+    """
+    Encode a batch of input data. A (commonsense) question is copied for all possible answers to the question.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     all_encoded = {"input_ids":[],"attention_mask":[]}
     for question,choices in zip(data["question"],data["choices"]):
         sentences_a = [question for choice_text in choices["text"]]
@@ -152,14 +337,49 @@ def encode_csqa(data, tokenizer,max_length=128) -> dict:
     return all_encoded
 
 def encode_scitail(data,tokenizer,max_length=256) -> dict:
+    """
+    Encode a batch of input data. Premise and hypothesis are encoded to infer a binary entailment label.
+    
+    Args:
+        data (DatasetDict): DatasetDict to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use for the encoding
+        max_len (int): Maximum length of samples
+    
+    Returns:
+        encoded DatasetDict 
+    """
     return tokenizer(data["premise"],data["hypothesis"],max_length=max_length,truncation=True,padding="max_length")
 
 def encode_wrapper(data, tokenizer, encoding_func,max_length, **kwargs):
+    """
+    Wrapper for applying an encoding function with a map.
+
+    Args:
+        data (DatasetDict): the dataset to be encoded
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): the tokenizer to use in the encoding
+        encoding_func (callable): the encoding function to map to the dataset
+        max_length (_type_): maximum length of samples
+    
+    Returns:
+        wrapper (callable): the encoding function to use in the mapping
+    """
     def wrapper(batch):
         return encoding_func(batch, tokenizer,max_length, **kwargs)
     return wrapper
 
 def preprocess_dataset(dataset,encoding_func,tokenizer,max_length):
+    """
+    Function for applying the encoding and performing unifying preprocessing steps
+
+    Args:
+        dataset (DatasetDict): Dataset to encode
+        encoding_func (callable): encoding function to apply to the dataset
+        tokenizer (Union[BertTokenizer,AutoTokenizer]): tokenizer to use in the encoding
+        max_length (_type_): maximum length of samples
+
+    Returns:
+        _type_: _description_
+    """
     # Encode the input data
     dataset = dataset.map(encode_wrapper(dataset,tokenizer,encoding_func,max_length), batched=True)
     print("mapped")
@@ -174,7 +394,7 @@ def preprocess_dataset(dataset,encoding_func,tokenizer,max_length):
     return dataset
    
 
-
+# encoding map for getting the correct encoding function for a given task based on the name
 encode_map = {
     "cb":encode_cb,
     "rte":encode_rte,
@@ -195,11 +415,29 @@ encode_map = {
 }
 
 def get_encoding(task_name):
+    """
+    Get the correct encoding from the encoding map based on the task name
+
+    Args:
+        task_name (str): task name
+
+    Returns:
+        callable: the encoding function to use for the task
+    """
     print("getting encoding:")
     print(encode_map[task_name])
     return encode_map[task_name]
 
 def get_label_count(dataset):
+    """
+    Get the label count for determining the number of labels / multiple choice heads
+
+    Args:
+        dataset (DatasetDict): target dataset
+
+    Returns:
+        int: number of labels in the dataset
+    """
     id2label = {id: label for (id,label) in enumerate(dataset["train"].features["labels"].names)}
     num_labels = len(id2label)
     return num_labels
