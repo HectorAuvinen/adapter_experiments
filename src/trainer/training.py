@@ -4,6 +4,9 @@ from adapters import AdapterTrainer
 
 
 class TrainingParameters:
+    """
+    Class for handling Transformers training arguments
+    """
     def __init__(self, label_names=["labels"],
                  evaluation_strategy="epoch",
                  save_strategy="epoch",
@@ -81,37 +84,3 @@ def get_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None):
         #callbacks= [EarlyStoppingCallback(early_stopping_patience=training_args.early_stopping_patience)]
     )
     return trainer
-
-
-"""
-def get_training_arguments(args):
-    training_args = TrainingArguments(
-        label_names=args.get("label_names",""),
-        evaluation_strategy=args.get("evaluation_strategy",""),
-        learning_rate=args.get("learning_rate",""),
-        num_train_epochs=args.get("num_train_epochs",""),
-        per_device_train_batch_size = args.get("per_device_train_batch_size",""),
-        per_device_eval_batch_size = args.get("per_device_eval_batch_size",""),
-        eval_steps = args.get("eval_steps",""),
-        logging_steps = args.get("logging_steps",""),
-        output_dir = args.get("output_dir",""),
-        overwrite_output_dir = args.get("overwrite_output_dir",""),
-        remove_unused_columns = args.get("remove_unused_columns",""),
-        lr_scheduler_type=args.get("lr_scheduler_type",""),
-        load_best_model_at_end=args.get("load_best_model_at_end",""),
-        metric_for_best_model=args.get("metric_for_best_model",""),
-        save_total_limit=args.get("save_total_limit","")
-    )
-    return training_args
-
-def get_trainer(training_args,dataset,model):
-    trainer = AdapterTrainer(
-        model=model,
-        args=training_args,
-        train_dataset=dataset["train"],
-        eval_dataset=dataset["validation"],
-        compute_metrics=calculate_accuracy,
-        callbacks= [EarlyStoppingCallback(early_stopping_patience=training_args.get("early_stopping_patience"))]
-    )
-    return trainer    
-"""

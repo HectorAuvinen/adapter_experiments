@@ -32,6 +32,81 @@ logging.basicConfig(
 #    data["label"] = class_label_bool.str2int(str(data["label"]))
 #    return data
 
+
+def handle_disk_task(task_name):
+    """
+    Load and preprocess dataset from disk
+
+    Args:
+        task_name (str): task name to be used for loading the dataset
+    Returns:
+        dataset (DatasetDict): processed dataset
+    """
+    dataset = load_from_disk(DISK_TASKS[task_name])
+    if task_name == "argument":
+        dataset = dataset.rename_column(original_column_name="annotation",new_column_name="label")
+        dataset = dataset.class_encode_column("label")
+        num_labels = 3  
+        class_label_feature = ClassLabel(num_classes=num_labels, names=['Argument_against', 'Argument_for', 'NoArgument'])
+        dataset = dataset.cast_column('label', class_label_feature)
+    return dataset
+
+def load_scitail(task_name,format="tsv_format"):
+    dataset = load_dataset(task_name,format)
+    dataset = dataset.class_encode_column("label")
+    class_label_feature = ClassLabel(num_classes=2, names=['entails', 'neutral'])
+    dataset = dataset.cast_column('label', class_label_feature)
+    return dataset
+
+def load_imdb(task_name):
+    dataset = load_dataset(task_name)
+    dataset["validation"] = dataset.pop("test")
+    return dataset
+
+def load_winogrande(task_name,size="winograndle_xl"):
+    dataset = load_dataset(task_name,size)
+    dataset = dataset.rename_column("answer","label")
+    dataset = dataset.class_encode_column("label")
+    class_label_feature = ClassLabel(num_classes=2, names=['option1','option2'])
+    dataset = dataset.cast_column('label', class_label_feature)
+    return dataset
+
+def process_boolq(dataset):
+    # dataset = load_dataset(task_name)
+    dataset = dataset.rename_column("answer","label")
+    dataset = dataset.class_encode_column("label")
+    class_label_feature = ClassLabel(num_classes=2, names=["True","False"])
+    dataset = dataset.cast_column("label",class_label_feature)
+    return dataset
+
+def process_social_i_qa(dataset):
+    dataset = dataset.class_encode_column("label")
+    class_label_feature = ClassLabel(num_classes=3,names=["answerA","answerB","answerC"])
+    dataset = dataset.cast_column("label",class_label_feature)
+    return dataset
+
+def process_commonsense_qa(dataset):
+    dataset = dataset.rename_column("answerKey","label")
+    dataset = dataset.class_encode_column("label")
+    class_label_features = ClassLabel(num_classes=5,names=["0","1","2","3","4"])
+    dataset = dataset.cast_column("label",class_label_features)
+
+def process_cosmos_qa(dataset):
+    dataset = dataset.class_encode_column("label")
+    class_label_feature = ClassLabel(num_classes=4, names=['answer0', 'answer1', 'answer2','answer3'])
+    dataset = dataset.cast_column('label', class_label_feature)
+    return dataset
+
+def process_hellaswag(dataset):
+    dataset = dataset.class_encode_column("label")
+    class_label_feature = ClassLabel(num_classes=4, names=['0', '1', '2','3'])
+    # Cast the label column to ClassLabel
+    dataset = dataset.cast_column('label', class_label_feature)
+
+def process_mnli(dataset):
+    dataset["validation"] = dataset.pop("validation_matched")
+    return dataset
+
 def load_hf_dataset(task_name:str,
                     debug:bool=False) -> DatasetDict:
     
