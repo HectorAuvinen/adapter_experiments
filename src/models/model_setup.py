@@ -1,7 +1,16 @@
-from transformers import BertConfig
+from transformers import BertConfig,AutoModelForSequenceClassification
 import adapters
 from adapters import AutoAdapterModel
 
+
+def setup_ft_model(model_name,num_labels,dataset):
+    id2label = {id: label for (id,label) in enumerate(dataset["train"].features["labels"].names)}
+    config = BertConfig.from_pretrained(
+        model_name,id2label=id2label,num_labels=num_labels)
+    
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_name,config=config)
+    return model   
 
 def setup_model(model_name,num_labels,dataset):
     id2label = {id: label for (id,label) in enumerate(dataset["train"].features["labels"].names)}

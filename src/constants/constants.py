@@ -52,3 +52,8 @@ MODEL_MAP = {"bert-base-uncased":"bert-base-uncased",
 
 
 PREDEFINED_SEEDS = [32, 18, 19, 42,512, 1111, 2048, 1234, 8192, 12345]
+
+
+DATASET_SIZES = {'mnli':392702, 'qqp':	363849, 'sst2':67349, 'winogrande':40398, 'imdb':25000, 'hellaswag':39905,
+    'social_i_qa':33410, 'cosmos_qa':25262, 'scitail':23097, 'argument':18341,
+    'commonsense_qa':9741, 'boolq':9427, 'mrpc':3668, 'sick':4439, 'rte':2490, 'cb':250}

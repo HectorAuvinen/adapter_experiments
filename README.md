@@ -18,9 +18,9 @@
 |Hellaswag|Commonsense reasoning / multiple choice| Given a sentence choose the correct ending |'ctx_a','ctx_b','ctx','endings''label'| 39905|10003|10042 |
 |SocialIQA| Commonsense reasoning / multiple choice| Given a sentence and question choose the correct answer |'context','question','answerA','answerB','answerC,'label'|  33410|  1954|  0|
 |CosmosQA|  Commonsense reasoning / multiple choice| Given a sentence and question choose the correct answer |'context','question','answer0','answer1','answer2','answer3','label'|  25262|  6963|  2985|
-|SciTail| Commonsense reasoning / multiple choice| TODO| TODO | TODO|TODO |TODO|
-|Argument mining| TODO| TODO |TODO|  TODO|  TODO|  TODO|
-|CSQA| TODO| TODO| TODO| TODO| TODO|TODO|TODO|
+|SciTail| Commonsense reasoning / multiple choice| TODO| TODO | 23097|1304 |2126|
+|Argument mining| TODO| TODO |TODO|  18341|  2042|  5109|
+|CSQA| TODO| TODO| TODO| 9741|1221|1140|
 |BoolQ| Reading comprehesion| Given a question and a sentence answer yes or no |'question','answer','passage'|  9427|  3270|  0|
 |MRPC| Sentence relatedness / sentence similarity| Given a sentence pair classify it as paraphrase or not |'sentence1','sentence2','label'|  3668|  408|  1725|
 |SICK| Natural language inference / sentence entailment| Given a sentence pair classify it as entailment, contradiction or neutral |'sentence_A','sentence_B','label'|  4439|  495|  4906|
