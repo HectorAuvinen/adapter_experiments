@@ -1,5 +1,5 @@
 import numpy as np
-from transformers import TrainingArguments,EvalPrediction,EarlyStoppingCallback
+from transformers import TrainingArguments,EvalPrediction,EarlyStoppingCallback,Trainer
 from adapters import AdapterTrainer
 
 
@@ -75,6 +75,18 @@ def get_training_arguments(args):
 
 def get_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None):
     trainer = AdapterTrainer(
+        model=model,
+        args=training_args,
+        train_dataset=dataset["train"],
+        eval_dataset=dataset["validation"] if not custom_eval else dataset[custom_eval],
+        compute_metrics=calculate_accuracy,
+        callbacks= [EarlyStoppingCallback(early_stopping_patience=early_stopping)] if early_stopping else None
+        #callbacks= [EarlyStoppingCallback(early_stopping_patience=training_args.early_stopping_patience)]
+    )
+    return trainer
+
+def get_ft_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None):
+    trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=dataset["train"],

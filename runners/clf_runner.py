@@ -93,6 +93,89 @@ def get_key_by_value(value,map):
             return key
     return None
 
+def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed):
+    model_folder_name = get_key_by_value(model,MODEL_MAP)
+    result_root = Path(output_dir)/Path(model_folder_name)
+    config_dir = os.path.join(result_root,"full_fine_tune")
+    if not os.path.exists(config_dir):
+        os.makedirs(config_dir)
+        print(f"Folder '{config_dir}' created.")
+    else:
+        print(f"Folder '{config_dir}' already exists.")
+    
+    output_dir = os.path.join(config_dir,str(seed))
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Folder '{output_dir}' created.")
+    else:
+        print(f"Folder '{output_dir}' already exists.")
+    
+    for task in tasks:
+        print(f"**********************************RUNNING TASK {task}*****************************")
+        if max_length == "max":
+            max_length = None
+        elif max_length == "std":
+            max_length = MAX_LENS[task]
+        else:
+            max_length = int(max_length)
+        # set seed
+        set_seed(seed)
+        # load dataset
+        data = load_hf_dataset(task,debug=False)
+        # get tokenizer (bert)
+        tokenizer = get_tokenizer(model_name)
+        # get encoding method for particular task
+        encode = get_encoding(task)
+        # apply encoding
+        dataset = preprocess_dataset(data,encode,tokenizer,max_length)
+        # get label count
+        num_labels = get_label_count(dataset)
+        # set up model (head with num labels)
+        model = setup_ft_model(model_name,num_labels,dataset)
+        
+        # set up training args
+        final_output = os.path.join(output_dir,task)
+        training_config["output_dir"] = final_output
+        
+        default_args = TrainingParameters(**training_config)
+            
+        
+        default_args.lr_scheduler_type = "linear"
+        print("TRAIN BATCH SIZE:",train_batch_size)
+        if train_batch_size:
+            print("###########################################################################################")
+            print(f"Changing batchs size from {default_args.per_device_train_batch_size} to {train_batch_size}")
+            default_args.per_device_train_batch_size = train_batch_size
+        train_args = get_training_arguments(default_args)
+        
+        # set up trainer
+        trainer = get_ft_trainer(train_args,dataset,model,early_stopping=early_stopping,custom_eval=eval_column)
+
+        # train
+        start_time = time.time()
+        trainer.train()
+        end_time = time.time()
+        
+        training_time = end_time - start_time
+        
+        # evaluate and write results to file
+        eval_results = trainer.evaluate()
+        if not keep_checkpoints:
+            checkpoint_dir = Path(final_output)
+            shutil.rmtree(checkpoint_dir)
+            try:
+                shutil.rmtree(checkpoint_dir)
+                print(f"Successfully removed directory: {checkpoint_dir}")
+            except Exception as e:
+                print(f"Error removing directory {checkpoint_dir}: {e}")
+            
+        print("results",eval_results)
+        print("output_dir",output_dir)
+        write_eval_results(eval_results,output_dir,task,trainer,adapter_config,
+                        default_args.per_device_train_batch_size,max_length,training_time)
+    
+
+
 def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed):
     # the parent folder for all experiments: e.g. target_folder/bert-base-uncased
     model_folder_name = get_key_by_value(model,MODEL_MAP)
@@ -216,22 +299,33 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
 
 
 if __name__ == '__main__':
+    """
+    Runner for conducting experiments on the supported datasets.
+    """
     parser = argparse.ArgumentParser(description="TODO")
-    parser.add_argument("--task_name",type=str,help="TODO",default="cb")
-    parser.add_argument("--model_name",type=str,help="TODO",default="bert-tiny-uncased")
-    parser.add_argument("--output_path",type=str,help="TODO",default="outputs/evals")
-    parser.add_argument("--adapter_config_path",type=str,help="TODO",default="src/configs/adapter_config.json")
-    parser.add_argument("--training_config_path",type=str,help="TODO",default="src/configs/training_config.json")
-    parser.add_argument("--logging",type=str,default="INFO",help="log level")
-    parser.add_argument("--single_config",action="store_true",help="TODO")
-    parser.add_argument("--max_length",type=int,help="TODO",default=None)
-    parser.add_argument("--train_batch_size",help="TODO",default=None)
-    parser.add_argument("--eval_batch_size",help="TODO",default=None)
-    parser.add_argument("--max_len",type=str,help="TODO",default="std")
-    parser.add_argument("--eval_column",type=str,help="TODO",default=None)
-    parser.add_argument("--num_seeds",type=int,help="TODO",default=3)
-    parser.add_argument("--early_stopping",type=int,help="TODO",default=3)
-    parser.add_argument("--keep_checkpoints",action="store_true")
+    parser.add_argument("--task_name",type=str,help="Task or tasks to conduct the experiments on. See README for supported tasks",default="cb")
+    parser.add_argument("--model_name",type=str,help="Model to use in the experiments. See README for supported models",default="bert-tiny-uncased")
+    parser.add_argument("--output_path",type=str,help="Output path for the experiment results (model performances and configurations). \
+                        If you want to keep the trained models, use the keep_checkpoints flag",default="outputs/evals")
+    parser.add_argument("--adapter_config_path",type=str,help="Path to the adapter configuration path. Expects a dictionary where keys \
+                        are config names and values are configuration dictionaries. See src/configs/adapter_configs.json for an example",
+                        default="src/configs/adapter_config.json")
+    parser.add_argument("--training_config_path",type=str,help="Path to the Transformers training config. See src/configs/training_config.json for an example",
+                        default="src/configs/training_config.json")
+    parser.add_argument("--logging",type=str,default="TODO",help="log level")
+    parser.add_argument("--single_config",action="Whether to use the first config entry of a dictionary of multiple configs (debugging)",help="TODO")
+    # parser.add_argument("--max_length",type=int,help="Maximum sequence length to use",default=None)
+    parser.add_argument("--train_batch_size",help="Training batch size. Can also be configured in the training config.",default=None)
+    parser.add_argument("--eval_batch_size",help="Evaluation batch size. Can also be configured in the training config.",default=None)
+    parser.add_argument("--max_len",type=str,help="Maximum sequence length to use. std maps to predefined max lengths (256 for classification, 128 for multiple choice), \
+                        max maps to None (no maximum length), and any int maps to maximum length of that int",default="std")
+    parser.add_argument("--eval_column",type=str,help="Custom column to use in evaluation. By default the validation column is used but if you \
+                        want to use a different column define the column name here",default=None)
+    parser.add_argument("--num_seeds",type=int,help="Number of seeds to use for the experiments. Each configuration is run num_seeds times and saved \
+                        into a corresponding seed folder in output_path",default=3)
+    parser.add_argument("--early_stopping",type=int,help="Tolerance for early stopping",default=3)
+    parser.add_argument("--keep_checkpoints",help="Whether to save the training checkpoints. False by default",action="store_true")
+    parser.add_argument("--mode",choices=["adapter","ft","all"],help="Whether to train adapters, do full fine-tuning or both. Defaults to adapters",default="adapter")
     
     #
     #"evaluation_strategy":"epoch",
@@ -271,6 +365,7 @@ if __name__ == '__main__':
     early_stopping = args.early_stopping
     eval_column = args.eval_column
     keep_checkpoints = args.keep_checkpoints
+    mode = args.mode
     
     adapter_config = json_to_dict(adapter_config_path)
     training_args = json_to_dict(training_config_path)
@@ -297,9 +392,17 @@ if __name__ == '__main__':
     print("MAX LEN",max_len)
     train_start = time.time()
     for seed in seeds:
+        # if mode == "adapter" or mode == "all":
         train_and_eval(tasks,model_name,output_path,adapter_config,training_args,
                        max_len,train_batch_size,eval_column,early_stopping,keep_checkpoints,
                        seed)
+        # if mode == "ft" or mode == "all"
+        # ft_train_and_eval(task=tasks,model=model_name,output_dir=output_path,
+        # training_config=training_args,max_length=max_len,
+        # train_batch_size=train_batch_size,eval_column=eval_column,early_stopping=early_stopping,
+        # keep_checkpoints=keep_checkpoints,seed=seed
+            # 
+            # task,model,output_dir,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed)
     
     train_end = time.time()
     total_time = train_end - train_start
