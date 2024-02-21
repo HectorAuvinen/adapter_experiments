@@ -8,6 +8,10 @@ import time
 import shutil
 from pathlib import Path
 
+
+from transformers import set_seed
+
+
 #project_root = os.path.dirname(os.getcwd())
 #sys.path.insert(0,project_root)
 # Get the absolute path to the directory where the script is located
@@ -24,7 +28,9 @@ from src.data_handling.load_data import *
 from src.data_handling.preprocessing import *
 from src.models.model_setup import *
 from src.trainer.training import *
-from src.trainer.file_utils import *
+from src.utils.file_utils import write_eval_results,json_to_dict
+from src.utils.utils import get_seeds,get_key_by_value
+# from src.constants import
 from src.constants.constants import *
 from transformers import set_seed
 
@@ -72,28 +78,30 @@ MODEL_MAP = {"bert-base-uncased":"bert-base-uncased",
 
 PREDEFINED_SEEDS = [32, 18, 19, 42,512, 1111, 2048, 1234, 8192, 12345]"""
 
-def get_seeds(n_seeds):
-    """
-    Returns a consistent list of seeds based on the user's input.
+"""def get_seeds(n_seeds):
+    #Returns a consistent list of seeds based on the user's input.
     
-    :param n_seeds: Number of seeds requested by the user.
-    :return: A list of seeds.
-    """
+    #:param n_seeds: Number of seeds requested by the user.
+    #:return: A list of seeds.
+
     # Ensure the requested number of seeds does not exceed the predefined list's length
     if n_seeds > len(PREDEFINED_SEEDS):
         raise ValueError(f"Requested number of seeds exceeds the limit of {len(PREDEFINED_SEEDS)}")
     
     # Slice the PREDEFINED_SEEDS list to get the desired number of seeds
     return PREDEFINED_SEEDS[:n_seeds]
+"""
 
-
+"""
 def get_key_by_value(value,map):
     for key, val in map.items():
         if val == value:
             return key
     return None
+"""
 
-def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed):
+
+def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed,debug):
     model_folder_name = get_key_by_value(model,MODEL_MAP)
     result_root = Path(output_dir)/Path(model_folder_name)
     config_dir = os.path.join(result_root,"full_fine_tune")
@@ -121,7 +129,7 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
         # set seed
         set_seed(seed)
         # load dataset
-        data = load_hf_dataset(task,debug=False)
+        data = load_hf_dataset(task,debug=debug)
         # get tokenizer (bert)
         tokenizer = get_tokenizer(model_name)
         # get encoding method for particular task
@@ -176,7 +184,7 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
     
 
 
-def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed):
+def train_and_eval(task,model,output_dir,adapter_config,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed,debug):
     # the parent folder for all experiments: e.g. target_folder/bert-base-uncased
     model_folder_name = get_key_by_value(model,MODEL_MAP)
     result_root = Path(output_dir)/Path(model_folder_name)
@@ -215,7 +223,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             # set seed
             set_seed(seed)
             # load dataset
-            data = load_hf_dataset(task,debug=False)
+            data = load_hf_dataset(task,debug=debug)
             # get tokenizer (bert)
             tokenizer = get_tokenizer(model_name)
             # get encoding method for particular task
@@ -253,7 +261,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             
             default_args = TrainingParameters(**training_config)
                 
-            print(f"Training arguments set up: {adapter_config}")
+            # print(f"Training arguments set up: {adapter_config}")
             #default_args = TrainingParameters(**training_args)
             #default_args = TrainingParameters(output_dir=final_output,
             #                                per_device_train_batch_size=8,
@@ -312,8 +320,8 @@ if __name__ == '__main__':
                         default="src/configs/adapter_config.json")
     parser.add_argument("--training_config_path",type=str,help="Path to the Transformers training config. See src/configs/training_config.json for an example",
                         default="src/configs/training_config.json")
-    parser.add_argument("--logging",type=str,default="TODO",help="log level")
-    parser.add_argument("--single_config",action="Whether to use the first config entry of a dictionary of multiple configs (debugging)",help="TODO")
+    parser.add_argument("--logging",type=str,default="DEBUG",help="log level")
+    parser.add_argument("--single_config",action="store_true",help="Whether to use the first config entry of a dictionary of multiple configs (debugging)")
     # parser.add_argument("--max_length",type=int,help="Maximum sequence length to use",default=None)
     parser.add_argument("--train_batch_size",help="Training batch size. Can also be configured in the training config.",default=None)
     parser.add_argument("--eval_batch_size",help="Evaluation batch size. Can also be configured in the training config.",default=None)
@@ -326,6 +334,7 @@ if __name__ == '__main__':
     parser.add_argument("--early_stopping",type=int,help="Tolerance for early stopping",default=3)
     parser.add_argument("--keep_checkpoints",help="Whether to save the training checkpoints. False by default",action="store_true")
     parser.add_argument("--mode",choices=["adapter","ft","all"],help="Whether to train adapters, do full fine-tuning or both. Defaults to adapters",default="adapter")
+    parser.add_argument("--debug",action="store_true",help="Debugging mode. Datasets are sliced to contain only 10 samples.")
     
     #
     #"evaluation_strategy":"epoch",
@@ -366,6 +375,7 @@ if __name__ == '__main__':
     eval_column = args.eval_column
     keep_checkpoints = args.keep_checkpoints
     mode = args.mode
+    debug = args.debug
     
     adapter_config = json_to_dict(adapter_config_path)
     training_args = json_to_dict(training_config_path)
@@ -395,7 +405,7 @@ if __name__ == '__main__':
         # if mode == "adapter" or mode == "all":
         train_and_eval(tasks,model_name,output_path,adapter_config,training_args,
                        max_len,train_batch_size,eval_column,early_stopping,keep_checkpoints,
-                       seed)
+                       seed,debug)
         # if mode == "ft" or mode == "all"
         # ft_train_and_eval(task=tasks,model=model_name,output_dir=output_path,
         # training_config=training_args,max_length=max_len,
