@@ -139,7 +139,13 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
         # get label count
         num_labels = get_label_count(dataset)
         # set up model (head with num labels)
-        model = setup_ft_model(model_name,num_labels,dataset)
+        if task in CLF_TASKS:
+            model = setup_ft_model_clf(model_name,num_labels,dataset)
+        elif task in MC_TASKS:
+            model = setup_ft_model_mc(model_name,num_labels,dataset)
+        
+        ##
+        
         
         # set up training args
         final_output = os.path.join(output_dir,task)

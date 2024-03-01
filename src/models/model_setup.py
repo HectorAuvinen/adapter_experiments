@@ -1,9 +1,9 @@
-from transformers import BertConfig,AutoModelForSequenceClassification,AutoConfig
+from transformers import BertConfig,AutoModelForSequenceClassification,AutoConfig,AutoModelForMultipleChoice
 import adapters
 from adapters import AutoAdapterModel
 
 
-def setup_ft_model(model_name,num_labels,dataset):
+def setup_ft_model_clf(model_name,num_labels,dataset):
     id2label = {id: label for (id,label) in enumerate(dataset["train"].features["labels"].names)}
     #config = BertConfig.from_pretrained(
     config = AutoConfig.from_pretrained(
@@ -11,12 +11,22 @@ def setup_ft_model(model_name,num_labels,dataset):
     
     model = AutoModelForSequenceClassification.from_pretrained(
         model_name,config=config)
-    return model   
+    return model
 
-def setup_model(model_name,num_labels,dataset):
+def setup_ft_model_mc(model_name,num_labels,dataset):
     id2label = {id: label for (id,label) in enumerate(dataset["train"].features["labels"].names)}
     #config = BertConfig.from_pretrained(
     config = AutoConfig.from_pretrained(
+        model_name,id2label=id2label,num_labels=num_labels)
+    
+    model = AutoModelForMultipleChoice.from_pretrained(
+        model_name,config=config)
+    return model     
+
+def setup_model(model_name,num_labels,dataset):
+    id2label = {id: label for (id,label) in enumerate(dataset["train"].features["labels"].names)}
+    config = BertConfig.from_pretrained(
+    #config = AutoConfig.from_pretrained(
         model_name,id2label=id2label,num_labels=num_labels)
     
     model = AutoAdapterModel.from_pretrained(
