@@ -18,6 +18,11 @@ ALL_TASKS = [
 SUBSET_TASKS = [
     "cb","rte","sick","mrpc","boolq"]
 
+SUBSET_TASKS_2 = [
+    "rte","boolq","argument","imdb","winogrande"
+]
+
+
 CLF_TASKS = [
     "cb","rte","sick","mrpc","boolq",
     "argument","scitail","imdb","sst2","qqp","mnli"]   
@@ -48,7 +53,8 @@ MAX_LENS = {
 
 MODEL_MAP = {"bert-base-uncased":"bert-base-uncased",
              "bert-tiny-uncased":"google/bert_uncased_L-2_H-128_A-2",
-             "bert-mini-uncased":"google/bert_uncased_L-4_H-256_A-4"}
+             "bert-mini-uncased":"google/bert_uncased_L-4_H-256_A-4",
+             "distilroberta-tiny-cased": "sshleifer/tiny-distilroberta-base"}
 
 
 PREDEFINED_SEEDS = [32, 18, 19, 42,512, 1111, 2048, 1234, 8192, 12345]

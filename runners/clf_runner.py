@@ -220,6 +220,15 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
                 max_length = MAX_LENS[task]
             else:
                 max_length = int(max_length)
+                
+            output_eval_file = os.path.join(output_dir,f"eval_results_{task}.txt")
+            if os.path.isfile(output_eval_file):
+                print("EVAL EXISTS, SKIPPING")
+                continue
+            else:
+                print("DOESNT EXIST")
+                break
+                
             # set seed
             set_seed(seed)
             # load dataset
@@ -239,7 +248,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             ###########################3
             #adapter_config = adapters.SeqBnConfig(**config)
             adapter_config = adapters.SeqBnConfig(**config)
-            print(f"Adapter config set up: {adapter_config}")
+            # print(f"Adapter config set up: {adapter_config}")
             #adapter_config = adapters.BnConfig(
             #                        output_adapter=config["output_adapter"],
             #                        mh_adapter=config["mh_adapter"],
@@ -360,6 +369,8 @@ if __name__ == '__main__':
         tasks = ALL_TASKS
     elif tasks == "subset":
         tasks = SUBSET_TASKS
+    elif tasks == "subset_2":
+        tasks = SUBSET_TASKS_2
     elif tasks == "clf":
         tasks = CLF_TASKS
     elif tasks == "mc":

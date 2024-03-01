@@ -13,12 +13,12 @@ def get_tokenizer(model_name):
     Returns:
         Union[BertTokenizer,AutoTokenizer]: Tokenizer for the model
     """
-    if "bert" in model_name:
-        print("using bert tokenizer")
-        return BertTokenizer.from_pretrained(model_name)
-    else:
-        print("using auto tokenizer")
-        return AutoTokenizer.from_pretrained(model_name)
+    #if "bert" in model_name:
+    #    print("using bert tokenizer")
+    #    return BertTokenizer.from_pretrained(model_name)
+    #else:
+    #    print("using auto tokenizer")
+    return AutoTokenizer.from_pretrained(model_name)
     
 def map_clf_dataset(dataset, encode:callable):
     dataset = dataset.map(encode,batched=True)
