@@ -1,0 +1,17 @@
+{
+  "_data_files": [
+    {
+      "filename": "data-00000-of-00001.arrow"
+    }
+  ],
+  "_fingerprint": "f23b81f4176083dd",
+  "_format_columns": [
+    "premise",
+    "hypothesis",
+    "label"
+  ],
+  "_format_kwargs": {},
+  "_format_type": null,
+  "_output_all_columns": false,
+  "_split": "train"
+}
