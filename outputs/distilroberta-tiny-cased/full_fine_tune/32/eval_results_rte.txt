@@ -1,0 +1,15 @@
+batch size = 32
+max length = 256
+training time (seconds) = 25.56
+output_adapter_redf_2 = {'output_adapter': True, 'mh_adapter': False, 'reduction_factor': 2, 'non_linearity': 'relu'}
+output_adapter_redf_4 = {'output_adapter': True, 'mh_adapter': False, 'reduction_factor': 4, 'non_linearity': 'relu'}
+output_adapter_redf_8 = {'output_adapter': True, 'mh_adapter': False, 'reduction_factor': 8, 'non_linearity': 'relu'}
+output_adapter_redf_16 = {'output_adapter': True, 'mh_adapter': False, 'reduction_factor': 16, 'non_linearity': 'relu'}
+output_adapter_redf_32 = {'output_adapter': True, 'mh_adapter': False, 'reduction_factor': 32, 'non_linearity': 'relu'}
+output_adapter_redf_64 = {'output_adapter': True, 'mh_adapter': False, 'reduction_factor': 64, 'non_linearity': 'relu'}
+eval_loss = 0.6931363940238953
+eval_accuracy = 0.5270758122743683
+eval_runtime = 0.2922
+eval_samples_per_second = 947.947
+eval_steps_per_second = 119.777
+epoch = 7.0
