@@ -225,9 +225,6 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             if os.path.isfile(output_eval_file):
                 print("EVAL EXISTS, SKIPPING")
                 continue
-            else:
-                print("DOESNT EXIST")
-                break
                 
             # set seed
             set_seed(seed)
@@ -320,7 +317,7 @@ if __name__ == '__main__':
     Runner for conducting experiments on the supported datasets.
     """
     parser = argparse.ArgumentParser(description="TODO")
-    parser.add_argument("--task_name",type=str,help="Task or tasks to conduct the experiments on. See README for supported tasks",default="cb")
+    parser.add_argument("--task_name",type=str,help="Task or tasks to conduct the experiments on. See README for supported tasks",default="argument")
     parser.add_argument("--model_name",type=str,help="Model to use in the experiments. See README for supported models",default="bert-tiny-uncased")
     parser.add_argument("--output_path",type=str,help="Output path for the experiment results (model performances and configurations). \
                         If you want to keep the trained models, use the keep_checkpoints flag",default="outputs/evals")
@@ -355,7 +352,6 @@ if __name__ == '__main__':
     #"eval_steps":1,
     #"logging_steps":200,
     #
-    
     args = parser.parse_args()
     
     logging.getLogger().setLevel(level=args.logging)
@@ -413,15 +409,15 @@ if __name__ == '__main__':
     print("MAX LEN",max_len)
     train_start = time.time()
     for seed in seeds:
-        # if mode == "adapter" or mode == "all":
-        train_and_eval(tasks,model_name,output_path,adapter_config,training_args,
-                       max_len,train_batch_size,eval_column,early_stopping,keep_checkpoints,
-                       seed,debug)
-        # if mode == "ft" or mode == "all"
-        # ft_train_and_eval(task=tasks,model=model_name,output_dir=output_path,
-        # training_config=training_args,max_length=max_len,
-        # train_batch_size=train_batch_size,eval_column=eval_column,early_stopping=early_stopping,
-        # keep_checkpoints=keep_checkpoints,seed=seed
+        if mode == "adapter" or mode == "all":
+            train_and_eval(tasks,model_name,output_path,adapter_config,training_args,
+                        max_len,train_batch_size,eval_column,early_stopping,keep_checkpoints,
+                        seed,debug)
+        if mode == "ft" or mode == "all":
+            ft_train_and_eval(task=tasks,model=model_name,output_dir=output_path,
+                              training_config=training_args,max_length=max_len,
+                              train_batch_size=train_batch_size,eval_column=eval_column,early_stopping=early_stopping,
+                              keep_checkpoints=keep_checkpoints,seed=seed,debug=debug)
             # 
             # task,model,output_dir,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed)
     

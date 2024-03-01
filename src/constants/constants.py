@@ -5,7 +5,8 @@ SUPER_GLUE_TASKS = ['axb', 'axg', 'boolq', 'cb', 'copa', 'multirc', 'record', 'r
 ###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
 ###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
 ###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
-DISK_TASKS = {"argument":"C:/Users/Hector Auvinen/Desktop/UKP_sentential_argument_mining/hf_data/argument_mining"}
+#DISK_TASKS = {"argument":"C:/Users/Hector Auvinen/Desktop/UKP_sentential_argument_mining/hf_data/argument_mining"}
+DISK_TASKS = {"argument": "../src/data/hf_data/argument_mining"}
 ###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
 ###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
 ###################### CHANGE PATH TO PROJECT DATA PATH ##########################################################
