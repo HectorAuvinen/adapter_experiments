@@ -7,7 +7,7 @@ def json_to_dict(file_path):
         data = json.load(json_file)
     return data
 
-def write_eval_results(eval_results,output_dir,task,trainer,adapter_config,batch_size,max_length,training_time):
+def write_eval_results(eval_results,output_dir,task,trainer,adapter_config,batch_size,max_length,training_time,early_stopping_patience):
     print("Writing eval results")
     print(eval_results)
     config = {}
@@ -20,6 +20,7 @@ def write_eval_results(eval_results,output_dir,task,trainer,adapter_config,batch
         with open(output_eval_file, 'w') as writer:
             writer.write("batch size = %s\n" % batch_size)
             writer.write("max length = %s\n" % max_length)
+            writer.write("early stopping patience = %s\n" % early_stopping_patience)
             writer.write("training time (seconds) = %.2f\n" % training_time)
             for config_key,config_value in config.items():
                 writer.write("%s = %s\n" % (config_key,config_value))
