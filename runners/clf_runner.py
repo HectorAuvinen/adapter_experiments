@@ -126,6 +126,12 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
             max_length = MAX_LENS[task]
         else:
             max_length = int(max_length)
+            
+        output_eval_file = os.path.join(output_dir,f"eval_results_{task}.txt")
+        if os.path.isfile(output_eval_file):
+            print("EVAL EXISTS, SKIPPING")
+            continue
+        
         # set seed
         set_seed(seed)
         # load dataset
