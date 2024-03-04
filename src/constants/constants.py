@@ -56,7 +56,10 @@ MODEL_MAP = {"bert-base-uncased":"bert-base-uncased",
              "bert-tiny-uncased":"google/bert_uncased_L-2_H-128_A-2",
              "bert-mini-uncased":"google/bert_uncased_L-4_H-256_A-4",
              "distilroberta-tiny-cased": "sshleifer/tiny-distilroberta-base",
-             "electra-small": "google/electra-small-discriminator"}
+             "electra-small": "google/electra-small-discriminator",
+             "albert-base": "albert/albert-base-v1",
+             "t5-small": "google-t5/t5-small",
+             "roberta-tiny":"haisongzhang/roberta-tiny-cased"}
 
 
 PREDEFINED_SEEDS = [32, 18, 19, 42,512, 1111, 2048, 1234, 8192, 12345]
