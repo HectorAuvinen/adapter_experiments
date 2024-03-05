@@ -23,6 +23,9 @@ SUBSET_TASKS_2 = [
     "rte","boolq","argument","imdb","winogrande"
 ]
 
+# 2 of each dataset size
+SUBSET_TASKS_3 = ["sick","rte","boolq","commonsense_qa","argument","cosmos_qa","winogrande","sst2"]
+
 
 CLF_TASKS = [
     "cb","rte","sick","mrpc","boolq",

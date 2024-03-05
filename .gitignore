@@ -15,3 +15,5 @@ adapter_env
 
 #
 #outputs/
+
+hf_data/

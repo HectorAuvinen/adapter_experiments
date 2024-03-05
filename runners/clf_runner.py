@@ -292,6 +292,7 @@ if __name__ == '__main__':
     parser.add_argument("--keep_checkpoints",help="Whether to save the training checkpoints. False by default",action="store_true")
     parser.add_argument("--mode",choices=["adapter","ft","all"],help="Whether to train adapters, do full fine-tuning or both. Defaults to adapters",default="adapter")
     parser.add_argument("--debug",action="store_true",help="Debugging mode. Datasets are sliced to contain only 10 samples.")
+    parser.add_argument("--one_seed",type=int,default=None)
     
     #
     #"evaluation_strategy":"epoch",
@@ -309,7 +310,10 @@ if __name__ == '__main__':
     
     #outpath = Path(args.output_path)
     # seed = [14,42,808]
-    seeds = get_seeds(args.num_seeds)
+    if args.one_seed:
+        seeds = [args.one_seed]
+    else:
+        seeds = get_seeds(args.num_seeds)
     
     tasks = args.task_name
     if tasks == "all":
@@ -318,6 +322,8 @@ if __name__ == '__main__':
         tasks = SUBSET_TASKS
     elif tasks == "subset_2":
         tasks = SUBSET_TASKS_2
+    elif tasks == "subset_3":
+        tasks = SUBSET_TASKS_3
     elif tasks == "clf":
         tasks = CLF_TASKS
     elif tasks == "mc":
