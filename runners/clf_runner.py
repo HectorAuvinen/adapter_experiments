@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 from transformers import set_seed
-
+import torch
 
 #project_root = os.path.dirname(os.getcwd())
 #sys.path.insert(0,project_root)
@@ -132,6 +132,8 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
         print("output_dir",output_dir)
         write_eval_results(eval_results,output_dir,task,trainer,adapter_config,
                         default_args.per_device_train_batch_size,max_length,training_time,early_stopping)
+        del model
+        torch.cuda.empty_cache()
     
 
 
@@ -261,6 +263,8 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             print("output_dir",output_dir)
             write_eval_results(eval_results,output_dir,task,trainer,adapter_config,
                             default_args.per_device_train_batch_size,max_length,training_time,early_stopping)
+            del model
+            torch.cuda.empty_cache()
 
 
 if __name__ == '__main__':
