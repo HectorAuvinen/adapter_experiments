@@ -328,6 +328,8 @@ if __name__ == '__main__':
         tasks = SUBSET_TASKS_2
     elif tasks == "subset_3":
         tasks = SUBSET_TASKS_3
+    elif tasks == "subset_4":
+        tasks = SUBSET_TASKS_4
     elif tasks == "clf":
         tasks = CLF_TASKS
     elif tasks == "mc":

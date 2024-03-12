@@ -26,6 +26,7 @@ SUBSET_TASKS_2 = [
 # 2 of each dataset size
 SUBSET_TASKS_3 = ["sick","rte","boolq","commonsense_qa","argument","cosmos_qa","winogrande","sst2"]
 
+SUBSET_TASKS_4 = ["sick","sst2"]
 
 CLF_TASKS = [
     "cb","rte","sick","mrpc","boolq",
@@ -58,6 +59,7 @@ MAX_LENS = {
 MODEL_MAP = {"bert-base-uncased":"bert-base-uncased",
              "bert-tiny-uncased":"google/bert_uncased_L-2_H-128_A-2",
              "bert-mini-uncased":"google/bert_uncased_L-4_H-256_A-4",
+             "bert-small-uncased":"google/bert_uncased_L-4_H-512_A-8",
              "distilroberta-tiny-cased": "sshleifer/tiny-distilroberta-base",
              "electra-small": "google/electra-small-discriminator",
              "albert-base": "albert/albert-base-v1",
