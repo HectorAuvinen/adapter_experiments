@@ -12,6 +12,7 @@ sys.path.insert(0, project_root)
 
 
 from src.constants.constants import DATASET_SIZES
+from src.utils.file_utils import *
 
 
 def prepare_eval_for_plots(new_results):
@@ -54,6 +55,7 @@ def prepare_eval_for_plots(new_results):
         except ValueError:
             # In case of any unexpected format, fallback to original string comparison
             number = number_part
+        print("number",number)
         return (1, number)
 
     # Use the custom sorting function in your existing sorting line
@@ -100,4 +102,166 @@ def plot_evaluation(data,errors,sorted_reduction_factors,tasks,plot_title):
     plt.grid(True,which="both",axis="y",linestyle="--",linewidth=0.5,color="grey",alpha=0.5)
     plt.legend(title="Reduction Factor", loc="lower right")
     plt.tight_layout()
+    plt.show()
+
+def plot_evaluation_subplots(data, errors, sorted_reduction_factors, tasks, plot_title,suffix=""):
+    num_reduction_factors = len(sorted_reduction_factors)
+    bar_width = 0.8 / num_reduction_factors
+    error_kw = {'capthick':1, 'capsize': 2, 'elinewidth': 0.5}
+
+    for i, reduction_factor in enumerate(sorted_reduction_factors):
+        positions = np.arange(len(tasks)) + i * bar_width
+        plt.bar(positions, data[reduction_factor], width=bar_width, alpha=0.8, label=reduction_factor, 
+                yerr=errors[reduction_factor], error_kw=error_kw, capsize=5)
+
+    plt.yticks(np.arange(0, 1.05, 0.05))
+    plt.xlabel('Task')
+    plt.ylabel('Mean Accuracy')
+    plt.title(f'{plot_title} {suffix}')
+    labels = [f"{task}\n{DATASET_SIZES[task]} training samples" for task in tasks]
+    plt.xticks(np.arange(len(tasks)) + bar_width * (len(sorted_reduction_factors) - 1) / 2, labels, rotation=45)
+    plt.grid(True, which="both", axis="y", linestyle="--", linewidth=0.5, color="grey", alpha=0.5)
+    plt.legend(title="Reduction Factor", loc="lower left")
+
+def plot_all_models(root_folder,suffix=""):
+    
+    root_path = Path(root_folder)
+    model_folders = [f for f in root_path.iterdir() if f.is_dir()]
+
+    n = len(model_folders)
+    grid_size = int(np.ceil(np.sqrt(n)))
+
+    plt.figure(figsize=(12 * grid_size, 8 * grid_size))
+    
+    for idx, model_folder in enumerate(model_folders, start=1):
+        print(f"Processing: {model_folder.name}")
+        new_results = read_eval_results(model_folder, two_datasets=True)
+        #print(f"Batch size: {batch_size}")
+        #print(f"Max length: {max_len}")
+        data, errors, sorted_reduction_factors, tasks = prepare_eval_for_plots(new_results)
+        
+        plt.subplot(grid_size, grid_size, idx)
+        plot_evaluation_subplots(data, errors, sorted_reduction_factors, tasks, model_folder.name,suffix=suffix)
+
+    plt.tight_layout()
+    plt.show() 
+
+
+def plot_line_results(results, hidden_sizes,marker):
+    for dataset_name, dataset_results in results.items():
+        plt.figure(figsize=(12, 7))
+
+        # Set x-axis to logarithmic scale
+        plt.xscale('log')
+
+        for model_name, model_results in dataset_results.items():
+            adapter_sizes = []
+            mean_accuracies = []
+            std_devs = []
+            full_fine_tune_acc = None
+            full_fine_tune_std = None
+
+            # Extract full fine-tune accuracy and deviation first
+            if 'fft' in model_results:
+                full_fine_tune_acc = model_results['fft']['mean_accuracy']
+                full_fine_tune_std = model_results['fft']['std_dev']
+
+            # Extract other reduction factors and sort by adapter size
+            non_fft_data = [(float(rf), stats['mean_accuracy'], stats['std_dev'])
+                            for rf, stats in model_results.items() if rf != 'fft']
+            non_fft_data.sort(key=lambda x: x[0])
+
+            for rf, mean_acc, std_dev in non_fft_data:
+                adapter_size = hidden_sizes[model_name] / rf
+                adapter_sizes.append(adapter_size)
+                mean_accuracies.append(mean_acc)
+                std_devs.append(std_dev)
+                
+                if model_name == marker:
+                    plt.text(adapter_size, mean_acc, f'{adapter_size:.0f}', fontsize=8,va="bottom", ha='center')
+
+            # Plot line for model's reduction factors
+            plt.errorbar(adapter_sizes, mean_accuracies, yerr=std_devs, fmt='-o', label=model_name,
+                         alpha=0.7, elinewidth=2, capsize=5)
+
+            # Plot the full fine-tune baseline as a horizontal line with vertical error bar
+            if full_fine_tune_acc is not None:
+                min_x, max_x = plt.xlim()
+                min_x = 0
+                plt.hlines(full_fine_tune_acc, min_x, max_x, colors=plt.gca().lines[-1].get_color(),
+                           linestyles='--', alpha=0.5)
+                plt.errorbar(min_x, full_fine_tune_acc, yerr=full_fine_tune_std, fmt='o',
+                             color=plt.gca().lines[-1].get_color(), alpha=0.7, elinewidth=2, capsize=5)
+
+        plt.title(f'Performance on {dataset_name}')
+        plt.xlabel('Adapter Size')
+        plt.ylabel('Mean Accuracy')
+        plt.legend(loc="lower right")
+        plt.grid(True, which="both", linestyle='--', alpha=0.5)
+        plt.show()
+
+    
+def plot_baselines(results):
+    """
+    plot baseline results from the paper. Requires the following format:
+    data = {
+        'Dataset': [
+            'MNLI', 'QQP', 'SST', 'WGrande', 'IMDB', 'HSwag', 'SocialIQA', 'CosQA', 'SciTail', 
+            'Argument', 'CSQA', 'BoolQ', 'MRPC', 'SICK', 'RTE', 'CB'
+        ],
+        'ST-A': [
+            84.60, 90.57, 92.66, 62.11, 94.20, 39.45, 60.95, 59.32, 94.44,
+            76.83, 57.83, 77.14, 86.13, 87.50, 70.68, 87.85
+        ]
+    }
+    """
+    # Plotting
+    plt.figure(figsize=(10,8))
+    bars = plt.bar(results['Dataset'], results['ST-A'], color='skyblue')
+    plt.xlabel('Dataset')
+    plt.ylabel('ST-A Score')
+    plt.title('ST-A Results for Datasets')
+
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2.0, yval, round(yval, 2), va='bottom', ha='center')
+
+    plt.xticks(rotation=45)  
+    plt.tight_layout()  
+
+    # Show the plot
+    plt.show()
+    
+    
+def plot_baseline_reproduction(df,new_results):
+    df['New-ST-A'] = df['Dataset'].map(new_results)  
+
+    print(df)
+
+    plt.figure(figsize=(12, 8))
+
+    bar_width = 0.35
+
+    r1 = np.arange(len(df['Dataset']))
+
+    r2 = [x + bar_width for x in r1]
+
+    bars1 = plt.bar(r1, df['ST-A'], color='skyblue', width=bar_width, label='ST-A')
+    bars2 = plt.bar(r2, df['New-ST-A'], color='orange', width=bar_width, label='New ST-A')
+
+    plt.xlabel('Dataset')
+    plt.ylabel('ST-A Score')
+    plt.title('ST-A Results for Datasets')
+
+    for bars in (bars1, bars2):
+        for bar in bars:
+            yval = bar.get_height()
+            if not np.isnan(yval): 
+                plt.text(bar.get_x() + bar.get_width() / 2.0, yval, round(yval, 2), va='bottom', ha='center',rotation=45)
+
+    plt.xticks([r + bar_width/2 for r in range(len(df['Dataset']))], df['Dataset'], rotation=45)
+
+    plt.legend(loc="lower right")
+    plt.tight_layout()
+
     plt.show()
