@@ -146,6 +146,61 @@ def plot_all_models(root_folder,suffix=""):
     plt.tight_layout()
     plt.show() 
 
+def plot_line_results_grid(results,hidden_sizes,marker):
+    num_datasets = len(results)
+
+    fig, axes = plt.subplots(1, num_datasets, figsize=(24, 7))
+    
+    if num_datasets == 1:
+        axes = [axes]
+    
+    for ax, (dataset_name, dataset_results) in zip(axes, results.items()):
+        ax.set_xscale('log')
+
+        for model_name, model_results in dataset_results.items():
+            adapter_sizes = []
+            mean_accuracies = []
+            std_devs = []
+            full_fine_tune_acc = None
+            full_fine_tune_std = None
+
+            if 'fft' in model_results:
+                full_fine_tune_acc = model_results['fft']['mean_accuracy']
+                full_fine_tune_std = model_results['fft']['std_dev']
+
+            non_fft_data = [(float(rf), stats['mean_accuracy'], stats['std_dev'])
+                            for rf, stats in model_results.items() if rf != 'fft']
+            non_fft_data.sort(key=lambda x: x[0])
+
+            for rf, mean_acc, std_dev in non_fft_data:
+                adapter_size = hidden_sizes[model_name] / rf
+                adapter_sizes.append(adapter_size)
+                mean_accuracies.append(mean_acc)
+                std_devs.append(std_dev)
+                
+                if model_name == marker:
+                    ax.text(adapter_size, mean_acc, f'{adapter_size:.0f}', fontsize=8, va="bottom", ha='center')
+
+            ax.errorbar(adapter_sizes, mean_accuracies, yerr=std_devs, fmt='-o', label=model_name,
+                        alpha=0.7, elinewidth=2, capsize=5)
+
+            if full_fine_tune_acc is not None:
+                min_x, max_x = ax.get_xlim()
+                min_x = 0  # or set to the minimal adapter size explicitly if needed
+                ax.hlines(full_fine_tune_acc, min_x, max_x, colors=ax.lines[-1].get_color(),
+                          linestyles='--', alpha=0.5)
+                ax.errorbar(min_x, full_fine_tune_acc, yerr=full_fine_tune_std, fmt='o',
+                            color=ax.lines[-1].get_color(), alpha=0.7, elinewidth=2, capsize=5)
+
+        ax.set_title(f'Performance on {dataset_name}')
+        ax.set_xlabel('Adapter Size')
+        ax.set_ylabel('Mean Accuracy')
+        ax.legend(loc="lower right")
+        ax.grid(True, which="both", linestyle='--', alpha=0.5)
+    
+    plt.tight_layout()
+    plt.show()
+
 
 def plot_line_results(results, hidden_sizes,marker):
     for dataset_name, dataset_results in results.items():

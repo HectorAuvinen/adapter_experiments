@@ -84,7 +84,7 @@ def read_eval_results(path,two_datasets=False,skip=None):
     print("lengths",max_lengths)
     return new_results
 
-def read_eval_results_2(root_path,to_skip=None):
+def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
     # return format:
     # {dataset: {model: {reduction factor : {mean_accuracy, std_dev}}}}
     results = {}
@@ -100,7 +100,7 @@ def read_eval_results_2(root_path,to_skip=None):
                         with eval_file.open() as f:
                             content = f.read()
                             dataset_name = eval_file.stem.split('eval_results_')[-1]
-                            if dataset_name not in ['sick', 'sst2']:
+                            if two_datasets and dataset_name not in ['sick', 'sst2']:
                                 continue
                             accuracy = float([line.split('=')[1] for line in content.splitlines() if 'eval_accuracy' in line][0])
                             reduction_factor_value = "fft" if reduction_factor == 'full_fine_tune' else float(
