@@ -13,7 +13,7 @@ import logging
 #sys.path.insert(0, project_root)
 
 
-from constants import *
+from .constants import *
 
 
 """GLUE_TASKS = ['ax', 'cola', 'mnli', 'mnli_matched', 'mnli_mismatched', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnli']

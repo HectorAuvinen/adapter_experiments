@@ -382,10 +382,8 @@ def preprocess_dataset(dataset,encoding_func,tokenizer,max_length):
     """
     # Encode the input data
     dataset = dataset.map(encode_wrapper(dataset,tokenizer,encoding_func,max_length), batched=True)
-    print("mapped")
     # The transformers model expects the target class column to be named "labels"
     # Check if renaming is necessary based on your dataset structure
-    print(dataset.column_names)
     dataset = dataset.rename_column("label", "labels")
     # Transform to pytorch tensors and only output the required columns
     # WHICH ONE BELOW???
@@ -424,8 +422,6 @@ def get_encoding(task_name):
     Returns:
         callable: the encoding function to use for the task
     """
-    print("getting encoding:")
-    print(encode_map[task_name])
     return encode_map[task_name]
 
 def get_label_count(dataset):

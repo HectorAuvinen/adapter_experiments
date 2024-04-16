@@ -57,19 +57,14 @@ def read_eval_results(path,two_datasets=False,skip=None):
                         current_batch_size = int([line.split("=")[1].strip() for line in lines if "batch size" in line][0])
                         current_max_length = int([line.split("=")[1].strip() for line in lines if "max length" in line][0])
                         
+                        # TODO: remove the batch sizes and max_lengths stuff
                         if task in batch_sizes and max_lengths:
                             batch_sizes[task].append(current_batch_size)
                             max_lengths[task].append(current_max_length)
                         else:
                             batch_sizes[task] = [current_batch_size]
                             max_lengths[task] = [current_max_length]
-                        #if batch_size is not None and max_length is not None:
-                        #    assert current_batch_size == batch_size, f"Batch size mismatch: expected {batch_size}, got {current_batch_size}"
-                        #    assert current_max_length == max_length, f"Max length mismatch: expected {max_length}, got {current_max_length}"
-                        #else:
-                        #batch_size = current_batch_size
-                        #max_length = current_max_length
-                        #
+
                         time = [float(detail.split("=")[1].strip()) for detail in lines if "training time" in detail][0]
                         trainingtime += time
                         accuracy = [float(line.strip().split("= ")[-1]) for line in lines if "eval_accuracy" in line][0]

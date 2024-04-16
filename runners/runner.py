@@ -198,14 +198,7 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             model = setup_model(model_name,num_labels,dataset)
             
             # set up adapter config
-            ###########################3
             adapter_config = adapters.SeqBnConfig(**config)
-            # print(f"Adapter config set up: {adapter_config}")
-            #adapter_config = adapters.BnConfig(
-            #                        output_adapter=config["output_adapter"],
-            #                        mh_adapter=config["mh_adapter"],
-            #                        reduction_factor=config["reduction_factor"],
-            #                        non_linearity=config["non_linearity"])
 
             # add adapter
             if task in CLF_TASKS:
@@ -221,15 +214,6 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             training_config["output_dir"] = final_output
             
             default_args = TrainingParameters(**training_config)
-                
-            # print(f"Training arguments set up: {adapter_config}")
-            #default_args = TrainingParameters(**training_args)
-            #default_args = TrainingParameters(output_dir=final_output,
-            #                                per_device_train_batch_size=8,
-            #                                evaluation_strategy="epoch",
-            #                                eval_steps=1,
-            #                                save_strategy="epoch",
-            #                                logging_steps=200)
             
             # TODO: FIX THIS BUG WHERE "linear" becomes ["linear"]
             default_args.lr_scheduler_type = "linear"
@@ -285,7 +269,6 @@ if __name__ == '__main__':
                         default="src/configs/training_config.json")
     parser.add_argument("--logging",type=str,default="DEBUG",help="log level")
     parser.add_argument("--single_config",action="store_true",help="Whether to use the first config entry of a dictionary of multiple configs (debugging)")
-    # parser.add_argument("--max_length",type=int,help="Maximum sequence length to use",default=None)
     parser.add_argument("--train_batch_size",help="Training batch size. Can also be configured in the training config.",default=None)
     parser.add_argument("--eval_batch_size",help="Evaluation batch size. Can also be configured in the training config.",default=None)
     parser.add_argument("--max_len",type=str,help="Maximum sequence length to use. std maps to predefined max lengths (256 for classification, 128 for multiple choice), \
