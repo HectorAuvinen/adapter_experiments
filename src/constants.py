@@ -66,6 +66,10 @@ MODEL_MAP = {"bert-base-uncased":"bert-base-uncased",
              "t5-small": "google-t5/t5-small",
              "roberta-tiny":"haisongzhang/roberta-tiny-cased"}
 
+NAME_MAP = {'MNLI':"mnli", 'QQP':"qqp", 'SST':"sst2", 'WGrande':"winogrande", 
+            'IMDB':"imdb", 'HSwag':"hellaswag", 'SocialIQA':"social_i_qa", 'CosQA':"cosmos_qa", 
+            'SciTail':"scitail", 'Argument':"argument", 'CSQA':"commonsense_qa", 'BoolQ':"boolq",
+            'MRPC':"mrpc", 'SICK':"sick", 'RTE':"rte", 'CB':"cb"}
 
 PREDEFINED_SEEDS = [32, 18, 19, 42,512, 1111, 2048, 1234, 8192, 12345]
 
@@ -73,3 +77,25 @@ PREDEFINED_SEEDS = [32, 18, 19, 42,512, 1111, 2048, 1234, 8192, 12345]
 DATASET_SIZES = {'mnli':392702, 'qqp':	363849, 'sst2':67349, 'winogrande':40398, 'imdb':25000, 'hellaswag':39905,
     'social_i_qa':33410, 'cosmos_qa':25262, 'scitail':23097, 'argument':18341,
     'commonsense_qa':9741, 'boolq':9427, 'mrpc':3668, 'sick':4439, 'rte':2490, 'cb':250}
+
+PAPER_RESULTS_REDF_2 = {
+    'Dataset': [
+        'MNLI', 'QQP', 'SST', 'WGrande', 'IMDB', 'HSwag', 'SocialIQA', 'CosQA', 'SciTail', 
+        'Argument', 'CSQA', 'BoolQ', 'MRPC', 'SICK', 'RTE', 'CB'
+    ],
+    'ST-A': [
+        84.60, 90.57, 92.66, 62.11, 94.20, 39.45, 60.95, 59.32, 94.44,
+        76.83, 57.83, 77.14, 86.13, 87.50, 70.68, 87.85
+    ]
+}
+
+PAPER_RESULTS_REDF_16 = {
+    'Dataset': [
+        'MNLI', 'QQP', 'SST', 'WGrande', 'IMDB', 'HSwag', 'SocialIQA', 'CosQA', 'SciTail', 
+        'Argument', 'CSQA', 'BoolQ', 'MRPC', 'SICK', 'RTE', 'CB'
+    ],
+    'ST-A': [
+        84.32, 90.59, 91.85, 61.09, 93.85, 38.11, 62.41, 60.01, 93.90,
+        77.65, 58.91, 75.66, 85.16, 86.20, 71.04, 86.07
+    ]
+}

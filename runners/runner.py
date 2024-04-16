@@ -29,7 +29,7 @@ from src.preprocessing import *
 from src.model_setup import *
 from src.training import *
 from src.file_utils import write_eval_results,json_to_dict
-from src.utils import get_seeds,get_key_by_value
+from src.utils import get_seeds,get_key_by_value,get_tasks,get_max_len
 # from src.constants import
 from src.constants import *
 from transformers import set_seed
@@ -59,12 +59,15 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
     
     for task in tasks:
         print(f"**********************************RUNNING TASK {task}*****************************")
+        """        
         if max_length == "max":
             max_length = None
         elif max_length == "std":
             max_length = MAX_LENS[task]
         else:
             max_length = int(max_length)
+        """
+        max_length = get_max_len(max_length,task)
             
         output_eval_file = os.path.join(output_dir,f"eval_results_{task}.txt")
         if os.path.isfile(output_eval_file):
@@ -89,8 +92,6 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
         elif task in MC_TASKS:
             model = setup_ft_model_mc(model_name,num_labels,dataset)
         
-        ##
-        
         
         # set up training args
         final_output = os.path.join(output_dir,task)
@@ -102,7 +103,6 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
         default_args.lr_scheduler_type = "linear"
         print("TRAIN BATCH SIZE:",train_batch_size)
         if train_batch_size:
-            print("###########################################################################################")
             print(f"Changing batchs size from {default_args.per_device_train_batch_size} to {train_batch_size}")
             default_args.per_device_train_batch_size = train_batch_size
         train_args = get_training_arguments(default_args)
@@ -117,7 +117,7 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
         
         training_time = end_time - start_time
         
-        # evaluate and write results to file
+        # evaluate,remove checkpoints and write results to file
         eval_results = trainer.evaluate()
         if not keep_checkpoints:
             checkpoint_dir = Path(final_output)
@@ -196,7 +196,6 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
             
             # set up adapter config
             ###########################3
-            #adapter_config = adapters.SeqBnConfig(**config)
             adapter_config = adapters.SeqBnConfig(**config)
             # print(f"Adapter config set up: {adapter_config}")
             #adapter_config = adapters.BnConfig(
@@ -319,8 +318,9 @@ if __name__ == '__main__':
     else:
         seeds = get_seeds(args.num_seeds)
     
+    """
     tasks = args.task_name
-    if tasks == "all":
+        if tasks == "all":
         tasks = ALL_TASKS
     elif tasks == "subset":
         tasks = SUBSET_TASKS
@@ -335,7 +335,8 @@ if __name__ == '__main__':
     elif tasks == "mc":
         tasks = MC_TASKS
     else:
-        tasks = [args.task_name]
+        tasks = [args.task_name]"""
+    tasks = get_tasks(args.task_name)
     #model_name = args.model_name
     output_path = args.output_path
     adapter_config_path = args.adapter_config_path
