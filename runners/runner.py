@@ -167,13 +167,16 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
 
         for task in tasks:
             print(f"**********************************RUNNING TASK {task}*****************************")
-            if max_length == "max":
+            """            if max_length == "max":
                 max_length = None
             elif max_length == "std":
                 max_length = MAX_LENS[task]
             else:
                 max_length = int(max_length)
+            """
                 
+            max_length = get_max_len(max_length,task)
+            
             output_eval_file = os.path.join(output_dir,f"eval_results_{task}.txt")
             if os.path.isfile(output_eval_file):
                 print("EVAL EXISTS, SKIPPING")

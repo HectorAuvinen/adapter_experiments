@@ -14,15 +14,24 @@ def get_seeds(n_seeds):
 
 
 def get_key_by_value(value,map):
+    """
+    Return the value for a given key in a dictionary
+    """
     for key, val in map.items():
         if val == value:
             return key
     return None
 
 def invert_dict(dict):
+    """
+    Invert the keys and values of a dictionary
+    """
     return {value: key for key, value in dict.items()}
 
 def get_tasks(tasks):
+    """
+    Map the task argument to constant task sets or the single task if only one given
+    """
     if tasks == "all":
         tasks = ALL_TASKS
     elif tasks == "subset":
@@ -41,6 +50,9 @@ def get_tasks(tasks):
         tasks = [tasks]
     
 def get_max_len(max_length,task):
+    """
+    Map the max length argument to a max length used in the tokenizer
+    """
     if max_length == "max":
         max_length = None
     elif max_length == "std":

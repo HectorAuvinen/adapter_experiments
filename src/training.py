@@ -49,10 +49,16 @@ class TrainingParameters:
 
 
 def calculate_accuracy(p: EvalPrediction):
+    """
+    Calculate the accuracy for the evaluation
+    """
     preds = np.argmax(p.predictions, axis=1)
     return {"accuracy":(preds == p.label_ids).mean()}
 
 def get_training_arguments(args):
+    """
+    Instantiate the training arguments
+    """
     training_args = TrainingArguments(
         label_names=args.label_names,
         evaluation_strategy=args.evaluation_strategy,
@@ -74,6 +80,9 @@ def get_training_arguments(args):
     return training_args
 
 def get_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None):
+    """
+    Get the transformers trainer for an adapter
+    """
     trainer = AdapterTrainer(
         model=model,
         args=training_args,
@@ -86,6 +95,9 @@ def get_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None):
     return trainer
 
 def get_ft_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None):
+    """
+    Get the transformers trainer for full fine-tuning
+    """
     trainer = Trainer(
         model=model,
         args=training_args,

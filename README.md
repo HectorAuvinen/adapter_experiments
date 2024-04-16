@@ -1,16 +1,45 @@
-# adapter_experiments
+# Adapter_experiments
 
 This repository allows for using the Adapters library to conduct experiments with bottleneck adapters.
 
-### Results in [AdapterFusion: Non-Destructive Task Composition for Transfer Learning](https://arxiv.org/pdf/2005.00247.pdf) by Pfeiffer et al.(2021)
-
-![AdapterFusion Results](./adapterfusion_results.JPG)
-
-[paper](https://arxiv.org/pdf/2005.00247.pdf)
 ## Environment
 
 There is an `environment.yml` file that contains the dependencies for the project. If you encounter problems in installing torch from `environment.yml`, create an empty environment and install `adapters`,`datasets`,`accelerate` and `evaluate`. This will be sufficient for the project.
 
+## Project Structure
+Here is an overview of the project structure:
+```bash
+ADAPTER_EXPERIMENTS/
+│
+├── .vscode/ # VSCode settings and configuration
+├── adapter_env/ # Conda environment files
+├── configs/ # Configuration files for adapters and transformers models
+├── data/ # Five datasets for local experiments
+│
+├── notebooks/ # Jupyter notebooks for data preprocessing and analysis
+│ ├── argument_data_preprocessing.ipynb
+│ ├── classification_run.ipynb
+│ ├── data_preprocessing.ipynb
+│ ├── multiple_choice_run.ipynb
+│ ├── params_check.ipynb
+│ ├── result_plotting.ipynb
+│ └── scrape_results.ipynb
+│
+├── outputs/ # Output files from model runs
+├── runners/ # Scripts for running experiments
+│ └── runner.py
+│
+└── src/ 
+├── init.py
+├── constants.py # Constants used across the codebase
+├── file_utils.py # Utilities for file operations
+├── load_data.py # Module for handling and preparing the datasets
+├── model_setup.py # Module for setting up the models and adapters
+├── plot_utils.py # Plotting utilities
+├── preprocessing.py # Module for tokenizers and transformations
+├── training.py # Module for training parameters and trainer
+└── utils.py # Miscellaneous utility functions
+```
 
 ## Usage
 
@@ -41,7 +70,7 @@ The core of this project is `runner.py`, which is used to conduct experiments wi
 To run an experiment with `runner.py`, use the following command:
 
 ```bash
-python runner.py --task_name "classification" --model_name "bert-base-uncased" --output_path "./outputs" --adapter_config_path "./src/configs/adapter_config.json" --training_config_path "./src/configs/training_config.json" --logging INFO --max_len "std" --num_seeds 3 --mode "all"
+python runner.py --task_name "SUBSET_TASKS_3" --model_name "bert-tiny-uncased" --output_path "./outputs" --adapter_config_path "./src/configs/adapter_config.json" --training_config_path "./src/configs/training_config.json" --logging INFO --max_len 256 --num_seeds 3 --mode "all"
 ```
 
 
@@ -55,23 +84,22 @@ python runner.py --task_name "classification" --model_name "bert-base-uncased" -
 
 
 ## Supported datasets
-| Dataset | Category | Description | (Relevant) Columns | Samples Train | Samples Val| Samples Test |
-|---------|----------|-------------|--------------------|---------------|-------|--------|
-|MNLI| Natural language inference / sentence entailment| Given a sentence pair classify it as entailment, contradiction or neutral |'premise','hypothesis','label'|  392702|  9815|  9832|
-|QQP| Sentence relatedness / sentence similarity| Given a question pair classify it as paraphrase or not |'question1','question2','label'|  363849|  40428|  390965|
-|SST2| Sentiment analysis / binary classification| Given a sentence classify it as positive or negative |'sentence','label'|  67349|  872|  1821|
-|Winogrande|  Commonsense reasoning / multiple choice| Given a sentence and blank fill in the blank |'sentence','option1','option2','answer'| 40398|1767|1267 |
-|IMDB| Sentiment analysis / binary classification| Given a sentence classify it as positive or negative |'text','label'|  25000|  0|  25000|
-|Hellaswag|Commonsense reasoning / multiple choice| Given a sentence choose the correct ending |'ctx_a','ctx_b','ctx','endings''label'| 39905|10003|10042 |
-|SocialIQA| Commonsense reasoning / multiple choice| Given a sentence and question choose the correct answer |'context','question','answerA','answerB','answerC,'label'|  33410|  1954|  0|
-|CosmosQA|  Commonsense reasoning / multiple choice| Given a sentence and question choose the correct answer |'context','question','answer0','answer1','answer2','answer3','label'|  25262|  6963|  2985|
-|SciTail| Commonsense reasoning / multiple choice| TODO| TODO | 23097|1304 |2126|
-|Argument mining| TODO| TODO |TODO|  18341|  2042|  5109|
-|CSQA| TODO| TODO| TODO| 9741|1221|1140|
-|BoolQ| Reading comprehesion| Given a question and a sentence answer yes or no |'question','answer','passage'|  9427|  3270|  0|
-|MRPC| Sentence relatedness / sentence similarity| Given a sentence pair classify it as paraphrase or not |'sentence1','sentence2','label'|  3668|  408|  1725|
-|SICK| Natural language inference / sentence entailment| Given a sentence pair classify it as entailment, contradiction or neutral |'sentence_A','sentence_B','label'|  4439|  495|  4906|
-|RTE| Natural language inference / sentence entailment| Given a sentence pair classify the second sentence as entails or does not entail |'sentence1','sentence2','label'|  2490|  277|  3000|
-|CB| Natural language inference / sentence entailment| Given a sentence pair classify it as entailment, contradiction or neutral |'premise','hypothesis','label'|  250|  277|  250|
 
+All 16 datasets from the [Adapterfusion paper](https://arxiv.org/pdf/2005.00247.pdf) are supported. The ```task_name``` argument of ```runner.py``` expects the dataset name as it is in the ```ID``` column.
 
+| Dataset | ID | Samples Train | Samples Val| Samples Test |
+|---------|----------|-------------|--------------------|---------------|
+|MNLI| mnli |  392702|  9815|  9832|
+|QQP| qqp |  363849|  40428|  390965|
+|SST2| sst2 |  67349|  872|  1821|
+|Winogrande|  winogrande | 40398|1767|1267 |
+|IMDB| imdb|  25000|  0|  25000|
+|Hellaswag|hellaswag| 39905|10003|10042 |
+|SocialIQA| social_i_qa|  33410|  1954|  0|
+|CosmosQA|  cosmos_qa|  25262|  6963|  2985|
+|SciTail| scitail|  18341|  2042|  5109|
+|CSQA| commonsense_qa|  9427|  3270|  0|
+|MRPC| mrpc|  3668|  408|  1725|
+|SICK| sick|  4439|  495|  4906|
+|RTE| rte |  2490|  277|  3000|
+|CB| cb |  250|  277|  250|

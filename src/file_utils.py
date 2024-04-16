@@ -1,4 +1,3 @@
-# import
 import os
 import json
 from pathlib import Path
@@ -6,18 +5,17 @@ from pathlib import Path
 import numpy as np
 
 def json_to_dict(file_path):
+    """ Read a JSON into a dictionary"""
     with open(file_path, "r") as json_file:
         data = json.load(json_file)
     return data
 
 def write_eval_results(eval_results,output_dir,task,trainer,adapter_config,batch_size,max_length,training_time,early_stopping_patience):
-    print("Writing eval results")
+    """ Write the experiment (hyper)parameters and performance results into a file"""
     print(eval_results)
     config = {}
     for key in adapter_config:
         config[key] = adapter_config[key]
-    #for attr_name, attr_value in vars(adapter_config).items():
-    #    print(f"{attr_name}: {attr_value}")
     output_eval_file = os.path.join(output_dir,f"eval_results_{task}.txt")
     if trainer.is_world_process_zero():
         with open(output_eval_file, 'w') as writer:
@@ -33,6 +31,7 @@ def write_eval_results(eval_results,output_dir,task,trainer,adapter_config,batch
     
     
 def read_eval_results(path,two_datasets=False,skip=None):
+    """Read the evaluation results from a given path"""
     res_path = Path(path)
     trainingtime = 0
     new_results = {}
@@ -85,8 +84,7 @@ def read_eval_results(path,two_datasets=False,skip=None):
     return new_results
 
 def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
-    # return format:
-    # {dataset: {model: {reduction factor : {mean_accuracy, std_dev}}}}
+    """Read the evaluation results from a given path (old result file format)"""
     results = {}
     for model_folder in root_path.iterdir():
         if model_folder.is_dir():
@@ -115,7 +113,6 @@ def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
 
                             results[dataset_name][model_name][reduction_factor_value].append(accuracy)
     print(results)
-    # Averaging over seeds and calculating standard deviation
     for dataset, models in results.items():
         for model, reduction_factors in models.items():
             for rf, accuracies in reduction_factors.items():
@@ -129,9 +126,10 @@ def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
 
 
 
-## old format utils below
+## old format utils below ##
+
 def get_dataset_and_acc(file_path,name_map):
-    """ Read eval results from path (old format)"""
+    """ Read eval results from path (oldest output format)"""
     name = Path(file_path).name.split(".txt")[0].split("results_")[-1]
     print(name)
     contents = []
@@ -149,7 +147,7 @@ def get_dataset_and_acc(file_path,name_map):
     return new_name,float(accuracy_lines[0].split("= ")[-1])*100
 
 def txt_to_dict(res_path,name_map):
-    """ go over results in a path and collect results in a dictionary (old format)"""
+    """ go over results in a path and collect results in a dictionary (oldest output format)"""
     new_results = {}
     for file in res_path.iterdir():
         if file.is_file() and "eval_results" in str(file):
@@ -162,6 +160,7 @@ def txt_to_dict(res_path,name_map):
 
 
 def get_dataset_and_acc_2(file_path,name_map):
+    """ Read eval results from path (old output format)"""
     name = Path(file_path).name.split(".txt")[0].split("results_")[-1]
     print(name)
     contents = []
@@ -173,6 +172,7 @@ def get_dataset_and_acc_2(file_path,name_map):
         return new_name,acc
         
 def text_to_dict_2(res_path,name_map):
+    """ go over results in a path and collect results in a dictionary (old output format)"""
     new_results = {}
     for file in res_path.iterdir():
         if file.is_file() and "eval_results" in str(file.name):
