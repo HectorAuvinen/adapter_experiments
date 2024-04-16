@@ -24,14 +24,14 @@ project_root = os.path.dirname(script_dir)
 sys.path.insert(0, project_root)
 
 
-from src.data_handling.load_data import *
-from src.data_handling.preprocessing import *
-from src.models.model_setup import *
-from src.trainer.training import *
-from src.utils.file_utils import write_eval_results,json_to_dict
-from src.utils.utils import get_seeds,get_key_by_value
+from src.load_data import *
+from src.preprocessing import *
+from src.model_setup import *
+from src.training import *
+from src.file_utils import write_eval_results,json_to_dict
+from src.utils import get_seeds,get_key_by_value
 # from src.constants import
-from src.constants.constants import *
+from src.constants import *
 from transformers import set_seed
 
 logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s : %(message)s')
