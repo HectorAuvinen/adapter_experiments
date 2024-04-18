@@ -82,6 +82,13 @@ DATASET_SIZES = {'mnli':392702, 'qqp':	363849, 'sst2':67349, 'winogrande':40398,
     'social_i_qa':33410, 'cosmos_qa':25262, 'scitail':23097, 'argument':18341,
     'commonsense_qa':9741, 'boolq':9427, 'mrpc':3668, 'sick':4439, 'rte':2490, 'cb':250}
 
+HIDDEN_SIZES = {
+    'bert-tiny-uncased': 128,
+    'bert-small-uncased': 512,
+    'roberta-tiny': 512,
+}
+
+
 # Adapterfusion paper results for ST-A (reduction factor 2)
 PAPER_RESULTS_REDF_2 = {
     'Dataset': [

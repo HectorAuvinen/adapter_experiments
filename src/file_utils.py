@@ -79,7 +79,7 @@ def read_eval_results(path,two_datasets=False,skip=None):
     return new_results
 
 def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
-    """Read the evaluation results from a given path (old result file format)"""
+    """Read the evaluation results from a given path (format for statistical tests)"""
     results = {}
     for model_folder in root_path.iterdir():
         if model_folder.is_dir():

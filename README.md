@@ -4,7 +4,9 @@ This repository allows for using the Adapters library to conduct experiments wit
 
 ## Environment
 
-There is an `environment.yml` file that contains the dependencies for the project. If you encounter problems in installing torch from `environment.yml`, create an empty environment and install `adapters`,`datasets`,`accelerate` and `evaluate`. This will be sufficient for the project.
+There is an `environment.yml` file that contains the dependencies for the project. If you encounter problems in installing torch from `environment.yml`, create an empty environment and install `adapters`,`datasets`,`accelerate` and `evaluate`:
+
+ This will be sufficient for the project.
 
 ## Project Structure
 Here is an overview of the project structure:
@@ -37,13 +39,13 @@ ADAPTER_EXPERIMENTS/
 ├── model_setup.py # Module for setting up the models and adapters
 ├── plot_utils.py # Plotting utilities
 ├── preprocessing.py # Module for tokenizers and transformations
-├── training.py # Module for training parameters and trainer
+├── training.py # Module for training parameters and Hugging Face trainer
 └── utils.py # Miscellaneous utility functions
 ```
 
 ## Usage
 
-The core of this project is `runner.py`, which is used to conduct experiments with various tasks and models. The script accepts a number of arguments that allow customizing the experiments. All datasets can be downloaded from huggingface so you do not need them on your disk.
+The interface to this project is `runner.py`, which is used to conduct experiments with various tasks and models. The script accepts a number of arguments that allow customizing the experiments. All datasets can be downloaded from huggingface so you do not need them on your disk.
 
 ### Arguments
 
@@ -51,14 +53,14 @@ The core of this project is `runner.py`, which is used to conduct experiments wi
 - `--model_name`: Choose the model to use in the experiments. See the list of supported models in the README.
 - `--output_path`: Set the output path for the experiment results, including model performances and configurations. Use the `--keep_checkpoints` flag to retain trained models.
 - `--adapter_config_path`: Provide the path to the adapter configuration. This should be a JSON file with a dictionary of configuration names and their corresponding settings. See `configs` for example configurations.
-- `--training_config_path`: Path to the Transformers training configuration JSON file. See `configs` for example configurations.
+- `--training_config_path`: Path to the Transformers training configuration JSON file. See `configs/training_config.json` for an example configuration.
 - `--logging`: Set the log level for the execution of the script.
 - `--single_config`: Use this flag to run with only the first configuration entry if your JSON file contains multiple configurations.
 - `--train_batch_size`: Define the training batch size. This can also be set in the training configuration file.
-- `--eval_batch_size`: Set the evaluation batch size. Can be configured in the training configuration file as well.
-- `--max_len`: Maximum sequence length to use. Use 'std' for predefined lengths, 'max' for no limit, or specify an integer value.
-- `--eval_column`: Specify a custom column to use for evaluation, if you want to use something other than the default (`validation`) column.
-- `--num_seeds`: Number of different seeds to use for running the experiments. Results are saved under the seed-named directories in the output path.
+- `--eval_batch_size`: Set the evaluation batch size. This can also be set in the training configuration file.
+- `--max_len`: Maximum sequence length to use. Use 'std' for predefined lengths (see ```src/constants.py```), 'max' for no limit, or specify an integer value.
+- `--eval_column`: Specify a custom column to use for evaluation, if you want to use something other than the default column (which is `validation`).
+- `--num_seeds`: Number of different seeds to use for running the experiments. Results are saved under seed-titled directories in the output path.
 - `--early_stopping`: Set the tolerance for early stopping.
 - `--keep_checkpoints`: Add this flag to save training checkpoints.
 - `--mode`: Choose the training mode - either 'adapter', 'ft' (full fine-tuning), or 'all'.
@@ -70,17 +72,19 @@ The core of this project is `runner.py`, which is used to conduct experiments wi
 To run an experiment with `runner.py`, use the following command:
 
 ```bash
-python runner.py --task_name "SUBSET_TASKS_3" --model_name "bert-tiny-uncased" --output_path "./outputs" --adapter_config_path "./src/configs/adapter_config.json" --training_config_path "./src/configs/training_config.json" --logging INFO --max_len 256 --num_seeds 3 --mode "all"
+python runner.py --task_name "subset_4" --model_name "bert-tiny-uncased" --output_path "../outputs" --adapter_config_path "./src/configs/adapter_configs_revised.json" --training_config_path "./src/configs/training_config.json" --max_len 256 --mode "all"
 ```
 
 
 ## Supported models
 
-| Model        | Layers | Hidden Size | Num Heads | Num Params  |
-|--------------|--------|-------------|-----------|-------------|
-| RoBERTa-Tiny | 4      | 512         | 8         | 27,982,336  |
-| BERT-Small   | 4      | 512         | 8         | 28,763,648  |
-| BERT-Tiny    | 2      | 128         | 2         | 4,385,920   |
+The supported models are specified in the table below. The ```model_name``` argument of ```runner.py``` expects the model name as it is in the ```ID``` column.
+
+| Model        | ID | Layers | Hidden Size | Num Heads | Num Params  |
+|--------------|----|--------|-------------|-----------|-------------|
+| RoBERTa-Tiny |roberta-tiny| 4      | 512         | 8         | 27,982,336  |
+| BERT-Small   |bert-small-uncased| 4      | 512         | 8         | 28,763,648  |
+| BERT-Tiny    |bert-tiny-uncased| 2      | 128         | 2         | 4,385,920   |
 
 
 ## Supported datasets

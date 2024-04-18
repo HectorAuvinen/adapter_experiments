@@ -1,4 +1,4 @@
-from constants import PREDEFINED_SEEDS,ALL_TASKS,SUBSET_TASKS,SUBSET_TASKS_2,SUBSET_TASKS_3,SUBSET_TASKS_4,CLF_TASKS,MC_TASKS,MAX_LENS
+from .constants import PREDEFINED_SEEDS,ALL_TASKS,SUBSET_TASKS,SUBSET_TASKS_2,SUBSET_TASKS_3,SUBSET_TASKS_4,CLF_TASKS,MC_TASKS,MAX_LENS
 
 def get_seeds(n_seeds):
     """
@@ -48,6 +48,7 @@ def get_tasks(tasks):
         tasks = MC_TASKS
     else:
         tasks = [tasks]
+    return tasks
     
 def get_max_len(max_length,task):
     """
@@ -59,3 +60,5 @@ def get_max_len(max_length,task):
         max_length = MAX_LENS[task]
     else:
         max_length = int(max_length)
+    
+    return max_length
