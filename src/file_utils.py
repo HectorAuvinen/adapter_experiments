@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
-from constants import SUBSET_TASKS_4
+from .constants import SUBSET_TASKS_4
 
 def json_to_dict(file_path):
     """ Read a JSON into a dictionary"""
