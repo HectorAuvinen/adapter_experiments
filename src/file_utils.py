@@ -4,6 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
+from constants import SUBSET_TASKS_4
+
 def json_to_dict(file_path):
     """ Read a JSON into a dictionary"""
     with open(file_path, "r") as json_file:
@@ -46,10 +48,11 @@ def read_eval_results(path,two_datasets=False,skip=None):
             for dataset in seed.iterdir():
                 task = dataset.name.split("eval_results_")[-1].split(".txt")[0]
                 if two_datasets:
-                    #print(task)
-                    if task not in ["sst2","sick"]:
-                        #print("skipping task",task)
+                    # only consider last experiment setup with sst2 and sick
+                    if task not in SUBSET_TASKS_4:
                         continue
+                    #if task not in ["sst2","sick"]:
+                        #continue
                 try:
                     with open(dataset,"r") as file:
                         lines = file.readlines()
@@ -79,7 +82,7 @@ def read_eval_results(path,two_datasets=False,skip=None):
     return new_results
 
 def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
-    """Read the evaluation results from a given path (format for statistical tests)"""
+    """Read the evaluation results from a given path (format for statistical tests and line plots)"""
     results = {}
     for model_folder in root_path.iterdir():
         if model_folder.is_dir():
@@ -107,7 +110,7 @@ def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
                                 results[dataset_name][model_name][reduction_factor_value] = []
 
                             results[dataset_name][model_name][reduction_factor_value].append(accuracy)
-    print(results)
+    #print(results)
     for dataset, models in results.items():
         for model, reduction_factors in models.items():
             for rf, accuracies in reduction_factors.items():
