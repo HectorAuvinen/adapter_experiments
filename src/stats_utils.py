@@ -9,8 +9,8 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from statsmodels.formula.api import ols
 
-from ..src.constants import DATASET_SIZES,HIDDEN_SIZES
-from ..src.file_utils import read_eval_results_2
+from .constants import DATASET_SIZES,HIDDEN_SIZES
+from .file_utils import read_eval_results_2
 
 
 def sort_results(results,task,model_name,hidden_sizes):
@@ -29,7 +29,6 @@ def calculate_dataset_correlation(path,dataset_sizes):
     root_folder = Path(path)
     results = read_eval_results_2(root_folder)
     #results = read_eval_results(root_folder)
-    print(results)
     
     mean_accuracies = {}
 
@@ -53,7 +52,6 @@ def calculate_dataset_correlation(path,dataset_sizes):
 
         # Collect dataset sizes and performances for the current model
         for dataset, models_performance in mean_accuracies.items():
-            print(dataset, models_performance)
             if dataset in DATASET_SIZES and model in models_performance:
                 dataset_sizes.append(DATASET_SIZES[dataset])
                 performances.append(models_performance[model])
@@ -63,7 +61,6 @@ def calculate_dataset_correlation(path,dataset_sizes):
         new_row = pd.Series({'Model': model, "Spearman's rank correlation coefficient": corr, 'p-value': p_value})
         df = pd.concat([df, new_row.to_frame().T], ignore_index=True)
     
-    print(df)
     return df
 
 
@@ -83,9 +80,6 @@ def calculate_correlation(model_name,task,hidden_sizes,results):
     paired_sorted = sorted(zip(adapter_sizes,performances),key=lambda x:x[0])
     sorted_adapter_sizes,sorted_performances = zip(*paired_sorted)
 
-    print("Sorted Adapter Sizes:", sorted_adapter_sizes)
-    print("Sorted Performances:", sorted_performances)
-
     # Check normality for sorted adapter sizes and performances
     stat_sizes, p_sizes = shapiro(sorted_adapter_sizes)
     #print(f'Adapter Sizes Normality: Statistics={stat_sizes:.3f}, p-value={p_sizes:.3f}')
@@ -102,7 +96,7 @@ def calculate_correlation(model_name,task,hidden_sizes,results):
     #else:
     # At least one of the datasets is not normally distributed
     corr, p_value = spearmanr(sorted_adapter_sizes, sorted_performances)
-    print(f"Spearman's Rank Correlation: Correlation={corr}, p-value={p_value}")
+    # print(f"Spearman's Rank Correlation: Correlation={corr}, p-value={p_value}")
     
     return corr,p_value
 
@@ -132,12 +126,12 @@ def anova_test(model_name,task,hidden_sizes,results,bins=[0,100,1000,10000]):
         
         # Prepare data for Tukey's HSD
         mc = pairwise_tukeyhsd(endog=data['Performance'], groups=data['Size Category'], alpha=0.05)
-        print(model_name,task)
-        print(mc)
+        #print(model_name,task)
+        #print(mc)
         
         # For visualizing Tukey's HSD results
-        mc.plot_simultaneous()
-        plt.show()
+        # mc.plot_simultaneous()
+        # plt.show()
         
     else:
         print("No significant differences found. No need for post-hoc analysis.")
@@ -152,10 +146,10 @@ def calculate_stats_from_path(path,skip=None):
     results = read_eval_results_2(root_folder)
     df = pd.DataFrame({"model":[],"task":[],"corr":[],"p-value":[]})
     for task in ["sick","sst2"]:
-        for model_name in hidden_sizes.keys():
+        for model_name in HIDDEN_SIZES.keys():
             if skip and model_name == skip:
                 continue
-            corr,p_val = calculate_correlation(model_name=model_name,task=task,hidden_sizes=hidden_sizes,results=results)
+            corr,p_val = calculate_correlation(model_name=model_name,task=task,hidden_sizes=HIDDEN_SIZES,results=results)
             new_row = pd.Series({'model': model_name, 'task': task, 'corr': corr, 'p-value': p_val})
             df = pd.concat([df, new_row.to_frame().T], ignore_index=True)
     return df
@@ -165,10 +159,10 @@ def calculate_anova_from_path(path,skip=None,bins=[0,100,2000,10000]):
     results = read_eval_results_2(root_folder)
     df = pd.DataFrame({"model":[],"task":[],"f-statistic":[],"p-value":[],"bins":[]})
     for task in ["sick","sst2"]:
-        for model_name in hidden_sizes.keys():
+        for model_name in HIDDEN_SIZES.keys():
             if skip and model_name == skip:
                 continue
-            anova,bins = anova_test(model_name=model_name,task=task,hidden_sizes=hidden_sizes,results=results,bins=bins)
+            anova,bins = anova_test(model_name=model_name,task=task,hidden_sizes=HIDDEN_SIZES,results=results,bins=bins)
             new_row = pd.Series({'model': model_name, 'task': task, 'f-statistic': anova.statistic, 'p-value': anova.pvalue,"bins":bins})
             df = pd.concat([df, new_row.to_frame().T], ignore_index=True)
             #print("*"*100)

@@ -11,8 +11,8 @@ import sys
 #sys.path.insert(0, project_root)
 
 
-from constants import DATASET_SIZES
-from file_utils import *
+from .constants import DATASET_SIZES
+from .file_utils import *
 
 
 def prepare_eval_for_plots(new_results):
@@ -55,15 +55,10 @@ def prepare_eval_for_plots(new_results):
         except ValueError:
             # In case of any unexpected format, fallback to original string comparison
             number = number_part
-        print("number",number)
         return (1, number)
 
     # Use the custom sorting function in your existing sorting line
     sorted_reduction_factors = sorted(new_results.keys(), key=custom_sort_key)
-    """    DATASET_SIZES = {'mnli':392702, 'qqp':363849, 'sst2':67349, 'winogrande':40398, 'imdb':25000, 'hellaswag':39905,
-                    'social_i_qa':33410, 'cosmos_qa':25262, 'scitail':23097, 'argument':18341,
-                    'commonsense_qa':9741, 'boolq':9427, 'mrpc':3668, 'sick':4439, 'rte':2490, 'cb':250}
-    """
     tasks = sorted([task for task in mean_accuracies.keys() if task in DATASET_SIZES], key=lambda task: DATASET_SIZES[task], reverse=True)
 
     data = {reduction_factor: [] for reduction_factor in sorted_reduction_factors}
@@ -134,7 +129,6 @@ def plot_all_models(root_folder,suffix=""):
     plt.figure(figsize=(12 * grid_size, 8 * grid_size))
     
     for idx, model_folder in enumerate(model_folders, start=1):
-        print(f"Processing: {model_folder.name}")
         new_results = read_eval_results(model_folder, two_datasets=True)
         #print(f"Batch size: {batch_size}")
         #print(f"Max length: {max_len}")

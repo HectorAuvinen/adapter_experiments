@@ -14,10 +14,8 @@ def get_tokenizer(model_name):
         Union[BertTokenizer,AutoTokenizer]: Tokenizer for the model
     """
     #if "bert" in model_name:
-    #    print("using bert tokenizer")
     #    return BertTokenizer.from_pretrained(model_name)
     #else:
-    #    print("using auto tokenizer")
     return AutoTokenizer.from_pretrained(model_name)
     
 def map_clf_dataset(dataset, encode:callable):
@@ -304,8 +302,6 @@ def encode_boolq(data,tokenizer,max_length=256) -> dict:
     Returns:
         encoded DatasetDict 
     """
-    for i in data:
-        print(i)
     return tokenizer(data["passage"],data["question"],max_length=max_length,truncation=True,padding="max_length",return_overflowing_tokens=False)
 
 def encode_csqa(data, tokenizer,max_length=128) -> dict:

@@ -14,7 +14,6 @@ def json_to_dict(file_path):
 
 def write_eval_results(eval_results,output_dir,task,trainer,adapter_config,batch_size,max_length,training_time,early_stopping_patience):
     """ Write the experiment (hyper)parameters and performance results into a file"""
-    print(eval_results)
     config = {}
     for key in adapter_config:
         config[key] = adapter_config[key]
@@ -110,7 +109,7 @@ def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
                                 results[dataset_name][model_name][reduction_factor_value] = []
 
                             results[dataset_name][model_name][reduction_factor_value].append(accuracy)
-    #print(results)
+                            
     for dataset, models in results.items():
         for model, reduction_factors in models.items():
             for rf, accuracies in reduction_factors.items():
@@ -129,7 +128,6 @@ def read_eval_results_2(root_path,to_skip=None,two_datasets=False):
 def get_dataset_and_acc(file_path,name_map):
     """ Read eval results from path (oldest output format)"""
     name = Path(file_path).name.split(".txt")[0].split("results_")[-1]
-    print(name)
     contents = []
     with open(file_path, "r") as file:
         lines = file.readlines()
@@ -150,17 +148,14 @@ def txt_to_dict(res_path,name_map):
     for file in res_path.iterdir():
         if file.is_file() and "eval_results" in str(file):
             name,acc = get_dataset_and_acc(file,name_map)
-            print(name,acc)
             new_results[name] = acc
 
-    print(new_results)
     return new_results
 
 
 def get_dataset_and_acc_2(file_path,name_map):
     """ Read eval results from path (old output format)"""
     name = Path(file_path).name.split(".txt")[0].split("results_")[-1]
-    print(name)
     contents = []
     with open(file_path, "r") as file:
         lines = file.readlines()
@@ -175,8 +170,6 @@ def text_to_dict_2(res_path,name_map):
     for file in res_path.iterdir():
         if file.is_file() and "eval_results" in str(file.name):
             name,acc = get_dataset_and_acc_2(file,name_map)
-            print(name,acc)
             new_results[name] = acc
 
-    print(new_results)
     return new_results
