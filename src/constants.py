@@ -13,13 +13,10 @@ ALL_TASKS = [
     "hellaswag","imdb","winogrande","sst2","qqp","mnli"]
 
 # experiment round 1 tasks
-SUBSET_TASKS = [
-    "cb","rte","sick","mrpc","boolq"]
+SUBSET_TASKS = ["cb","rte","sick","mrpc","boolq"]
 
 # experiment round 2 tasks
-SUBSET_TASKS_2 = [
-    "rte","boolq","argument","imdb","winogrande"
-]
+SUBSET_TASKS_2 = ["rte","boolq","argument","imdb","winogrande"]
 
 # experiment round 3 tasks (2 of each dataset size)
 SUBSET_TASKS_3 = ["sick","rte","boolq","commonsense_qa","argument","cosmos_qa","winogrande","sst2"]
@@ -28,14 +25,10 @@ SUBSET_TASKS_3 = ["sick","rte","boolq","commonsense_qa","argument","cosmos_qa","
 SUBSET_TASKS_4 = ["sick","sst2"]
 
 # classification tasks
-CLF_TASKS = [
-    "cb","rte","sick","mrpc","boolq",
-    "argument","scitail","imdb","sst2","qqp","mnli"]   
+CLF_TASKS = ["cb","rte","sick","mrpc","boolq","argument","scitail","imdb","sst2","qqp","mnli"]   
     
 # multiple choice tasks    
-MC_TASKS = [
-    "commonsense_qa","cosmos_qa","social_i_qa",
-    "hellaswag","winogrande"]
+MC_TASKS = ["commonsense_qa","cosmos_qa","social_i_qa","hellaswag","winogrande"]
 
 # max lengths used in the round 1 and 2 experiments (smaller max len for multiple choice due to memory issues)
 MAX_LENS = {

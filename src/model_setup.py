@@ -1,4 +1,4 @@
-from transformers import BertConfig,AutoModelForSequenceClassification,AutoConfig,AutoModelForMultipleChoice
+from transformers import AutoModelForSequenceClassification,AutoConfig,AutoModelForMultipleChoice
 import adapters
 from adapters import AutoAdapterModel
 
@@ -16,7 +16,6 @@ def setup_ft_model_clf(model_name,num_labels,dataset):
         AutoModelForSequenceClassification: configured model ready for training.
     """
     id2label = {id: label for (id,label) in enumerate(dataset["train"].features["labels"].names)}
-    #config = BertConfig.from_pretrained(
     config = AutoConfig.from_pretrained(
         model_name,id2label=id2label,num_labels=num_labels)
     

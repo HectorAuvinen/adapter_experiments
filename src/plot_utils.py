@@ -1,68 +1,50 @@
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-import os
-import sys
-
-#script_dir = os.path.dirname(os.path.abspath(__file__))
-# Get the absolute path to the root of the project
-#project_root = os.path.dirname(script_dir)
-# Add the project root to the sys.path
-#sys.path.insert(0, project_root)
-
 
 from .constants import DATASET_SIZES
 from .file_utils import *
 
 
 def prepare_eval_for_plots(new_results):
-    # Calculate mean and standard deviation for accuracies
     mean_accuracies = {}
-    std_dev_accuracies = {}  # Store standard deviations here
+    std_dev_accuracies = {}
 
     for reduction_factor, seeds in new_results.items():
         for seed, tasks in seeds.items():
             for task, accuracy in tasks.items():
                 if task not in mean_accuracies:
                     mean_accuracies[task] = {}
-                    std_dev_accuracies[task] = {}  # Initialize std deviation dict
+                    std_dev_accuracies[task] = {}
                 if reduction_factor not in mean_accuracies[task]:
                     mean_accuracies[task][reduction_factor] = []
-                    std_dev_accuracies[task][reduction_factor] = []  # Initialize list for std deviation values
+                    std_dev_accuracies[task][reduction_factor] = []
                 mean_accuracies[task][reduction_factor].append(accuracy)
 
     for task, reduction_factors in mean_accuracies.items():
         for reduction_factor, accuracies in reduction_factors.items():
             mean_accuracies[task][reduction_factor] = np.mean(accuracies)
-            std_dev_accuracies[task][reduction_factor] = np.std(accuracies)  # Calculate standard deviation
+            std_dev_accuracies[task][reduction_factor] = np.std(accuracies) 
 
-    # Sort and prepare data for plotting
-    # sorted_reduction_factors = sorted(new_results.keys(), key=lambda x: (x != 'full_fine_tune', int(x.split('_')[-1]) if x != 'full_fine_tune' else -1))
     def custom_sort_key(x):
-        # Handle 'full fine tune' as a special case
+        """Sort results according to format output_adapter_redf_NUMBER"""
         if x == 'full_fine_tune':
             return (0, 0)
-        # Extract numerical part for sorting
         parts = x.split('_')
-        # Assuming the format is 'output_adapter_redf_NUMBER'
         number_part = parts[-1]
         try:
-            # Convert to integer for proper numerical comparison
             if number_part[0] == "0":
                 number = float(f"{number_part[0]}.{number_part[1]}")
             else:
                 number = int(number_part)
         except ValueError:
-            # In case of any unexpected format, fallback to original string comparison
             number = number_part
         return (1, number)
 
-    # Use the custom sorting function in your existing sorting line
     sorted_reduction_factors = sorted(new_results.keys(), key=custom_sort_key)
     tasks = sorted([task for task in mean_accuracies.keys() if task in DATASET_SIZES], key=lambda task: DATASET_SIZES[task], reverse=True)
 
     data = {reduction_factor: [] for reduction_factor in sorted_reduction_factors}
-    errors = {reduction_factor: [] for reduction_factor in sorted_reduction_factors}  # For standard deviations
+    errors = {reduction_factor: [] for reduction_factor in sorted_reduction_factors}
     for task in tasks:
         for reduction_factor in sorted_reduction_factors:
             data[reduction_factor].append(mean_accuracies[task].get(reduction_factor, np.nan))
@@ -74,15 +56,12 @@ def plot_evaluation(data,errors,sorted_reduction_factors,tasks,plot_title):
     plt.figure(figsize=(12, 8))
     num_reduction_factors = len(sorted_reduction_factors)
     bar_width = 0.8 / num_reduction_factors
-    #
     error_kw = {
     'capthick':1,
-    'capsize': 2,  # Adjust cap size if needed
-    'elinewidth': 0.5#bar_width / 2,  # Adjust line width to match bar width as closely as possible
-    #'ecolor': 'lightgrey',  # Set error bar color to grey
-    #'alpha': 0.7,  # Adjust transparency of the error bars
+    'capsize': 2, 
+    'elinewidth': 0.5
     }
-    #
+    
     for i, reduction_factor in enumerate(sorted_reduction_factors):
         positions = np.arange(len(tasks)) + i * bar_width
         plt.bar(positions, data[reduction_factor], width=bar_width, alpha=0.8, label=reduction_factor, 
@@ -130,8 +109,6 @@ def plot_all_models(root_folder,suffix=""):
     
     for idx, model_folder in enumerate(model_folders, start=1):
         new_results = read_eval_results(model_folder, two_datasets=True)
-        #print(f"Batch size: {batch_size}")
-        #print(f"Max length: {max_len}")
         data, errors, sorted_reduction_factors, tasks = prepare_eval_for_plots(new_results)
         
         plt.subplot(grid_size, grid_size, idx)
@@ -180,7 +157,7 @@ def plot_line_results_grid(results,hidden_sizes,marker):
 
             if full_fine_tune_acc is not None:
                 min_x, max_x = ax.get_xlim()
-                min_x = 0  # or set to the minimal adapter size explicitly if needed
+                min_x = 0
                 ax.hlines(full_fine_tune_acc, min_x, max_x, colors=ax.lines[-1].get_color(),
                           linestyles='--', alpha=0.5)
                 ax.errorbar(min_x, full_fine_tune_acc, yerr=full_fine_tune_std, fmt='o',
@@ -200,7 +177,6 @@ def plot_line_results(results, hidden_sizes,marker):
     for dataset_name, dataset_results in results.items():
         plt.figure(figsize=(12, 7))
 
-        # Set x-axis to logarithmic scale
         plt.xscale('log')
 
         for model_name, model_results in dataset_results.items():
@@ -210,12 +186,10 @@ def plot_line_results(results, hidden_sizes,marker):
             full_fine_tune_acc = None
             full_fine_tune_std = None
 
-            # Extract full fine-tune accuracy and deviation first
             if 'fft' in model_results:
                 full_fine_tune_acc = model_results['fft']['mean_accuracy']
                 full_fine_tune_std = model_results['fft']['std_dev']
 
-            # Extract other reduction factors and sort by adapter size
             non_fft_data = [(float(rf), stats['mean_accuracy'], stats['std_dev'])
                             for rf, stats in model_results.items() if rf != 'fft']
             non_fft_data.sort(key=lambda x: x[0])
@@ -229,11 +203,9 @@ def plot_line_results(results, hidden_sizes,marker):
                 if model_name == marker:
                     plt.text(adapter_size, mean_acc, f'{adapter_size:.0f}', fontsize=8,va="bottom", ha='center')
 
-            # Plot line for model's reduction factors
             plt.errorbar(adapter_sizes, mean_accuracies, yerr=std_devs, fmt='-o', label=model_name,
                          alpha=0.7, elinewidth=2, capsize=5)
 
-            # Plot the full fine-tune baseline as a horizontal line with vertical error bar
             if full_fine_tune_acc is not None:
                 min_x, max_x = plt.xlim()
                 min_x = 0
@@ -264,7 +236,6 @@ def plot_baselines(results):
         ]
     }
     """
-    # Plotting
     plt.figure(figsize=(10,8))
     bars = plt.bar(results['Dataset'], results['ST-A'], color='skyblue')
     plt.xlabel('Dataset')
@@ -278,21 +249,15 @@ def plot_baselines(results):
     plt.xticks(rotation=45)  
     plt.tight_layout()  
 
-    # Show the plot
     plt.show()
     
     
 def plot_baseline_reproduction(df,new_results):
     df['New-ST-A'] = df['Dataset'].map(new_results)  
-
-    print(df)
-
+    
     plt.figure(figsize=(12, 8))
-
     bar_width = 0.35
-
     r1 = np.arange(len(df['Dataset']))
-
     r2 = [x + bar_width for x in r1]
 
     bars1 = plt.bar(r1, df['ST-A'], color='skyblue', width=bar_width, label='ST-A')

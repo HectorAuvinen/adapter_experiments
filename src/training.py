@@ -37,15 +37,11 @@ class TrainingParameters:
         self.output_dir = output_dir
         self.overwrite_output_dir = overwrite_output_dir
         self.remove_unused_columns = remove_unused_columns
-        # save_total_limit=1,  # Save only the best model checkpoint
-        # save_steps=1000,  # Save model checkpoints every 1000 steps (adjust as needed)
-        self.lr_scheduler_type = lr_scheduler_type,  # Specify the learning rate scheduler type
-        self.load_best_model_at_end=load_best_model_at_end,  # Load the best model checkpoint at the end
+        self.lr_scheduler_type = lr_scheduler_type,
+        self.load_best_model_at_end=load_best_model_at_end,
         self.metric_for_best_model = metric_for_best_model
         self.early_stopping_patience = early_stopping_patience
         self.save_total_limit = save_total_limit  
-        # https://stackoverflow.com/questions/69087044/early-stopping-in-bert-trainer-instances
-        # early stopping
 
 
 def calculate_accuracy(p: EvalPrediction):
@@ -90,7 +86,6 @@ def get_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None):
         eval_dataset=dataset["validation"] if not custom_eval else dataset[custom_eval],
         compute_metrics=calculate_accuracy,
         callbacks= [EarlyStoppingCallback(early_stopping_patience=early_stopping)] if early_stopping else None
-        #callbacks= [EarlyStoppingCallback(early_stopping_patience=training_args.early_stopping_patience)]
     )
     return trainer
 
@@ -105,6 +100,5 @@ def get_ft_trainer(training_args,dataset,model,early_stopping=3,custom_eval=None
         eval_dataset=dataset["validation"] if not custom_eval else dataset[custom_eval],
         compute_metrics=calculate_accuracy,
         callbacks= [EarlyStoppingCallback(early_stopping_patience=early_stopping)] if early_stopping else None
-        #callbacks= [EarlyStoppingCallback(early_stopping_patience=training_args.early_stopping_patience)]
     )
     return trainer

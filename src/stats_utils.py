@@ -65,83 +65,54 @@ def calculate_dataset_correlation(path,dataset_sizes):
 
 
 def calculate_correlation(model_name,task,hidden_sizes,results):
-    """    # Extract adapter sizes and performances
-    adapter_sizes = []
-    performances = []
-
-    for redf, data in results[task][model_name].items():
-        if redf != 'fft':  # Exclude the full fine-tune ('fft') case
-            adapter_sizes.append(hidden_sizes[model_name]/float(redf))
-            performances.append(data['mean_accuracy'])"""
+    """
+    Calculate Spearman's correlation coefficient for adapter sizes and corresponding performance results
+    """
     adapter_sizes,performances = sort_results(results,task,model_name,hidden_sizes)
-    #print("Adapter Sizes:", adapter_sizes)
-    #print("Performances:", performances)
 
     paired_sorted = sorted(zip(adapter_sizes,performances),key=lambda x:x[0])
     sorted_adapter_sizes,sorted_performances = zip(*paired_sorted)
 
-    # Check normality for sorted adapter sizes and performances
-    stat_sizes, p_sizes = shapiro(sorted_adapter_sizes)
-    #print(f'Adapter Sizes Normality: Statistics={stat_sizes:.3f}, p-value={p_sizes:.3f}')
-    #print(f'Adapter Sizes Normality: Statistics={stat_sizes:.5f}, p-value={p_sizes:.5f}')
-    
-    # Normality check for performances
-    stat_perf, p_perf = shapiro(sorted_performances)
-    #print(f'Performances Normality: Statistics={stat_perf:.5f}, p-value={p_perf:.5f}')
-
-    #if p_sizes > 0.05 and p_perf > 0.05:
-        # Both datasets appear normally distributed
-        #corr, p_value = pearsonr(sorted_adapter_sizes, sorted_performances)
-        #print(f"Pearson's Correlation: Correlation={corr:.5f}, p-value={p_value:.5f}")
-    #else:
-    # At least one of the datasets is not normally distributed
     corr, p_value = spearmanr(sorted_adapter_sizes, sorted_performances)
     # print(f"Spearman's Rank Correlation: Correlation={corr}, p-value={p_value}")
     
     return corr,p_value
 
 
-def anova_test(model_name,task,hidden_sizes,results,bins=[0,100,1000,10000]):
+def anova_test(model_name,task,hidden_sizes,results,bins=[0,100,1000,10000],show_plot=True):
+    """
+    Conduct ANOVA and Tukey's HSD test on the different adapter size bins
+    """
+    # get lists of sizes and performances and create a df from this
     adapter_sizes,performances = sort_results(results,task,model_name,hidden_sizes)
-    #adapter_sizes_poly = np.column_stack((np.ones(len(adapter_sizes)), adapter_sizes, np.power(adapter_sizes, 2)))
-    #model = sm.OLS(performances, adapter_sizes_poly).fit()
-    #print(model.summary())
     
     data = pd.DataFrame({'Adapter Size': adapter_sizes, 'Performance': performances})
 
     # Define the bins for the adapter size categories
-    #bins = [0, 50,1000,2000]
     labels = ['Small', 'Medium', 'Large']
     data['Size Category'] = pd.cut(data['Adapter Size'], bins=bins, labels=labels)
 
-    # tukey_results = pairwise_tukeyhsd(endog=data['Performance'], groups=data['Size Category'], alpha=0.05)
-    # print("tykey results:",tukey_results)
-    # Perform ANOVA
+    # ANOVA
     anova = stats.f_oneway(data[data['Size Category'] == 'Small']['Performance'],
                         data[data['Size Category'] == 'Medium']['Performance'],
                         data[data['Size Category'] == 'Large']['Performance'])
-    # new
+    
+    # if p-value small enough, perform Tukey's HSD
     if anova.pvalue < 0.05:
         print("Significant differences found, proceeding with Tukey's HSD test.")
-        
-        # Prepare data for Tukey's HSD
         mc = pairwise_tukeyhsd(endog=data['Performance'], groups=data['Size Category'], alpha=0.05)
-        #print(model_name,task)
-        #print(mc)
         
-        # For visualizing Tukey's HSD results
-        # mc.plot_simultaneous()
-        # plt.show()
+        if show_plot():
+            mc.plot_simultaneous()
+            plt.show()
         
     else:
         print("No significant differences found. No need for post-hoc analysis.")
-        mc = None
        
-    return anova,bins#,mc
+    return anova,bins
 
 
 def calculate_stats_from_path(path,skip=None):
-    #root_folder = Path("F:/jku/practical_work/after_5th_march/reruns/trainable_params")  # Adjust this path
     root_folder = Path(path)
     results = read_eval_results_2(root_folder)
     df = pd.DataFrame({"model":[],"task":[],"corr":[],"p-value":[]})

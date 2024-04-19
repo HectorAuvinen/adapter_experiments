@@ -1,5 +1,4 @@
-#from ..utils import process_labels
-from transformers import BertTokenizer,AutoTokenizer
+from transformers import AutoTokenizer
     
 
 
@@ -13,9 +12,6 @@ def get_tokenizer(model_name):
     Returns:
         Union[BertTokenizer,AutoTokenizer]: Tokenizer for the model
     """
-    #if "bert" in model_name:
-    #    return BertTokenizer.from_pretrained(model_name)
-    #else:
     return AutoTokenizer.from_pretrained(model_name)
     
 def map_clf_dataset(dataset, encode:callable):
@@ -58,7 +54,6 @@ def encode_hellaswag(data,tokenizer,max_length=128):
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            #max_length=128,  # or any max_length that suits your model/context
             max_length=max_length,
             truncation=True,
             padding="max_length",
@@ -87,16 +82,12 @@ def encode_winogrande(data,tokenizer,max_length=128) -> dict:
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            #max_length=128,  # or any max_length that suits your model/context
             max_length=max_length,
             truncation=True,
             padding="max_length",
         )
         all_encoded["input_ids"].append(encoded["input_ids"])
         all_encoded["attention_mask"].append(encoded["attention_mask"])
-        # Add the labels. Convert label to int if it's not already (assuming label is the index of the correct ending)
-        # labels currently 1,2 -> convert to 0,1
-        #all_encoded["labels"].append(int(label)-1 if isinstance(label, str) and label.isdigit() else int(0)) # was else label
 
     return all_encoded
 
@@ -115,22 +106,18 @@ def encode_cosmosqa(data,tokenizer,max_length=80) -> dict:
     """
     all_encoded = {"input_ids": [], "attention_mask": []}
 
-    #for sentence, answer0,answer1,answer2,answer3,label in zip(data["context"], data["answer0"],data["answer1"],data["answer2"],data["answer3"], data["label"]):
     for sentence, answer0,answer1,answer2,answer3 in zip(data["context"], data["answer0"],data["answer1"],data["answer2"],data["answer3"]):
         sentences_a = [sentence for _ in range(4)]
         sentences_b = [answer0, answer1, answer2, answer3]
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            #max_length=128,  # or any max_length that suits your model/context
-            #max_length=80,
             max_length=max_length,
             truncation=True,
             padding="max_length",
         )
         all_encoded["input_ids"].append(encoded["input_ids"])
         all_encoded["attention_mask"].append(encoded["attention_mask"])
-        #all_encoded["labels"].append(label)
 
     return all_encoded
 
@@ -153,7 +140,6 @@ def encode_socialiqa(data,tokenizer,max_length=128) -> dict:
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            #max_length=128,
             max_length=max_length,
             truncation=True,
             padding="max_length"
@@ -323,7 +309,6 @@ def encode_csqa(data, tokenizer,max_length=128) -> dict:
         encoded = tokenizer(
             sentences_a,
             sentences_b,
-            #max_length=128,
             max_length=max_length,
             truncation=True,
             padding="max_length"
@@ -374,17 +359,13 @@ def preprocess_dataset(dataset,encoding_func,tokenizer,max_length):
         max_length (_type_): maximum length of samples
 
     Returns:
-        _type_: _description_
+        dataset (DatasetDict): processed dataset
     """
-    # Encode the input data
+    
     dataset = dataset.map(encode_wrapper(dataset,tokenizer,encoding_func,max_length), batched=True)
-    # The transformers model expects the target class column to be named "labels"
-    # Check if renaming is necessary based on your dataset structure
     dataset = dataset.rename_column("label", "labels")
-    # Transform to pytorch tensors and only output the required columns
-    # WHICH ONE BELOW???
     dataset.set_format(type="torch",columns=["input_ids", "attention_mask", "labels"])
-    #dataset.set_format(columns=["input_ids", "attention_mask", "labels"])
+    
     return dataset
    
 

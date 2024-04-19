@@ -6,26 +6,44 @@ This repository allows for using the Adapters library to conduct experiments wit
 
 There is an `environment.yml` file that contains the dependencies for the project. If you encounter problems in installing torch from `environment.yml`, create an empty environment and install `adapters`,`datasets`,`accelerate` and `evaluate`:
 
- This will be sufficient for the project.
+### Using pip
+```bash
+python -m venv myenv
+
+# On Windows
+myenv\Scripts\activate
+# On MacOS/Linux
+source myenv/bin/activate
+
+pip install adapters datasets accelerate evaluate
+```
+
+### Using conda
+```bash
+conda create -n myenv python=3.8
+
+conda activate myenv
+
+conda install -c conda-forge adapters datasets accelerate evaluate
+```
+
+
+This will be sufficient for the project.
 
 ## Project Structure
 Here is an overview of the project structure:
 ```bash
 ADAPTER_EXPERIMENTS/
 │
-├── .vscode/ # VSCode settings and configuration
 ├── adapter_env/ # Conda environment files
 ├── configs/ # Configuration files for adapters and transformers models
 ├── data/ # Five datasets for local experiments
 │
-├── notebooks/ # Jupyter notebooks for data preprocessing and analysis
-│ ├── argument_data_preprocessing.ipynb
-│ ├── classification_run.ipynb
-│ ├── data_preprocessing.ipynb
-│ ├── multiple_choice_run.ipynb
-│ ├── params_check.ipynb
-│ ├── result_plotting.ipynb
-│ └── scrape_results.ipynb
+├── notebooks/ # notebooks for data preprocessing and analysis
+│ ├── argument_data_preprocessing.ipynb # preprocessing the argument dataset
+│ ├── data_preprocessing.ipynb # loading and saving the datasets on disk
+│ ├── params_check.ipynb # checking the architectures of the different models
+│ └── result_analysis.ipynb # plotting experiment results, doing statistical tests
 │
 ├── outputs/ # Output files from model runs
 ├── runners/ # Scripts for running experiments
@@ -39,8 +57,9 @@ ADAPTER_EXPERIMENTS/
 ├── model_setup.py # Module for setting up the models and adapters
 ├── plot_utils.py # Plotting utilities
 ├── preprocessing.py # Module for tokenizers and transformations
+├── stats_utils.py # Module for statistical tests
 ├── training.py # Module for training parameters and Hugging Face trainer
-└── utils.py # Miscellaneous utility functions
+└── utils.py # Miscellaneous utilities
 ```
 
 ## Usage
@@ -89,7 +108,7 @@ The supported models are specified in the table below. The ```model_name``` argu
 
 ## Supported datasets
 
-All 16 datasets from the [Adapterfusion paper](https://arxiv.org/pdf/2005.00247.pdf) are supported. The ```task_name``` argument of ```runner.py``` expects the dataset name as it is in the ```ID``` column.
+All 16 datasets from the [Adapterfusion paper](https://arxiv.org/pdf/2005.00247.pdf) are supported. The ```task_name``` argument of ```runner.py``` expects the dataset name as it is in the ```ID``` column. The datasets are downloaded from Hugging Face (except for Argument) for training.
 
 | Dataset | ID | Samples Train | Samples Val| Samples Test |
 |---------|----------|-------------|--------------------|---------------|

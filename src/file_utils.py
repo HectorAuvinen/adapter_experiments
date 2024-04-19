@@ -31,7 +31,7 @@ def write_eval_results(eval_results,output_dir,task,trainer,adapter_config,batch
     
     
     
-def read_eval_results(path,two_datasets=False,skip=None):
+def read_eval_results(path,two_datasets=False,skip=None,show_batch_and_len=False):
     """Read the evaluation results from a given path"""
     res_path = Path(path)
     trainingtime = 0
@@ -50,16 +50,13 @@ def read_eval_results(path,two_datasets=False,skip=None):
                     # only consider last experiment setup with sst2 and sick
                     if task not in SUBSET_TASKS_4:
                         continue
-                    #if task not in ["sst2","sick"]:
-                        #continue
                 try:
                     with open(dataset,"r") as file:
                         lines = file.readlines()
-                        #
+
                         current_batch_size = int([line.split("=")[1].strip() for line in lines if "batch size" in line][0])
                         current_max_length = int([line.split("=")[1].strip() for line in lines if "max length" in line][0])
                         
-                        # TODO: remove the batch sizes and max_lengths stuff
                         if task in batch_sizes and max_lengths:
                             batch_sizes[task].append(current_batch_size)
                             max_lengths[task].append(current_max_length)
@@ -70,14 +67,13 @@ def read_eval_results(path,two_datasets=False,skip=None):
                         time = [float(detail.split("=")[1].strip()) for detail in lines if "training time" in detail][0]
                         trainingtime += time
                         accuracy = [float(line.strip().split("= ")[-1]) for line in lines if "eval_accuracy" in line][0]
-                        #config_results[config.name][seed.name][task] = {'accuracy': accuracy, 'batch_size': batch_size, 'max_length': max_length}
                         config_results[config.name][seed.name][task] = accuracy
                 except PermissionError as e:
                     continue
         new_results.update(config_results)
-        
-    print("batches",batch_sizes)
-    print("lengths",max_lengths)
+    if show_batch_and_len:
+        print("batches",batch_sizes)
+        print("lengths",max_lengths)
     return new_results
 
 def read_eval_results_2(root_path,to_skip=None,two_datasets=False):

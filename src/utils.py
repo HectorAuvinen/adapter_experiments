@@ -9,7 +9,6 @@ def get_seeds(n_seeds):
     if n_seeds > len(PREDEFINED_SEEDS):
         raise ValueError(f"Requested number of seeds exceeds the limit of {len(PREDEFINED_SEEDS)}")
     
-    # Slice the PREDEFINED_SEEDS list to get the desired number of seeds
     return PREDEFINED_SEEDS[:n_seeds]
 
 
