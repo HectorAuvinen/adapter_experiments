@@ -15,3 +15,6 @@ adapter_env
 
 #
 #outputs/
+req_venv
+
+test_venv/
