@@ -2,3 +2,7 @@ accelerate
 adapters
 datasets
 evaluate
+matplotlib
+scipy
+statsmodels
+ipykernel
