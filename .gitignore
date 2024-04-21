@@ -1,19 +1,15 @@
-# ignore ALL .log files
 *.log
 
-# ignore ALL files in ANY directory named temp
 temp/
-#
+
 __pycache__
 
-
-# ignore env
-adapter_env
-
-#
 .vscode/
 
-#
-#outputs/
-
 hf_data/
+
+# different venvs on different machines (package version differ because of hardware)
+req_venv/
+test_venv/
+adapter_env/
+adapterenv/
