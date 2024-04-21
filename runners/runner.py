@@ -1,26 +1,16 @@
-# import argument parsers
 import sys
 import os
-import json
 import argparse
 import logging
 import time
 import shutil
 from pathlib import Path
 
-
 from transformers import set_seed
 import torch
 
-#project_root = os.path.dirname(os.getcwd())
-#sys.path.insert(0,project_root)
-# Get the absolute path to the directory where the script is located
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Get the absolute path to the root of the project
 project_root = os.path.dirname(script_dir)
-
-# Add the project root to the sys.path
 sys.path.insert(0, project_root)
 
 
@@ -30,7 +20,6 @@ from src.model_setup import *
 from src.training import *
 from src.file_utils import write_eval_results,json_to_dict
 from src.utils import get_seeds,get_key_by_value,get_tasks,get_max_len
-# from src.constants import
 from src.constants import *
 from transformers import set_seed
 
@@ -41,9 +30,15 @@ root = Path(__file__).resolve().parent
 
 
 def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed,debug):
+    
+    # set output folder name
     model_folder_name = get_key_by_value(model,MODEL_MAP)
+    
+    # define output path
     result_root = Path(output_dir)/Path(model_folder_name)
+    
     config_dir = os.path.join(result_root,"full_fine_tune")
+    
     if not os.path.exists(config_dir):
         os.makedirs(config_dir)
         print(f"Folder '{config_dir}' created.")
@@ -59,14 +54,6 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
     
     for task in tasks:
         print(f"**********************************RUNNING TASK {task}*****************************")
-        """        
-        if max_length == "max":
-            max_length = None
-        elif max_length == "std":
-            max_length = MAX_LENS[task]
-        else:
-            max_length = int(max_length)
-        """
         max_length = get_max_len(max_length,task)
             
         output_eval_file = os.path.join(output_dir,f"eval_results_{task}.txt")
@@ -98,12 +85,9 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
         training_config["output_dir"] = final_output
         
         default_args = TrainingParameters(**training_config)
-            
-        
         default_args.lr_scheduler_type = "linear"
-        print("TRAIN BATCH SIZE:",train_batch_size)
+
         if train_batch_size:
-            print(f"Changing batchs size from {default_args.per_device_train_batch_size} to {train_batch_size}")
             default_args.per_device_train_batch_size = train_batch_size
         train_args = get_training_arguments(default_args)
         
@@ -127,9 +111,8 @@ def ft_train_and_eval(task,model,output_dir,training_config,max_length,train_bat
                 print(f"Successfully removed directory: {checkpoint_dir}")
             except Exception as e:
                 print(f"Error removing directory {checkpoint_dir}: {e}")
-            
-        print("results",eval_results)
-        print("output_dir",output_dir)
+                
+                
         write_eval_results(eval_results,output_dir,task,trainer,adapter_config,
                         default_args.per_device_train_batch_size,max_length,training_time,early_stopping)
         del model
@@ -141,16 +124,13 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
     # the parent folder for all experiments: e.g. target_folder/bert-base-uncased
     model_folder_name = get_key_by_value(model,MODEL_MAP)
     result_root = Path(output_dir)/Path(model_folder_name)
-    # the task specific folder in the experiments parent folder: e.g. target_folder/bert-base-uncased/cb
-    #dataset_results = Path(result_root)/Path(task.split("/")[-1])
-        
+    
     for name,config in adapter_config.items():
         logger.info(f"using config {name}")
-        
-        # the configuration specific folder in the experiments parent folder: e.g. target_folder/bert-base-uncased/redf_16
         config_dir = os.path.join(result_root,name)
+        
         if not os.path.exists(config_dir):
-            # If the folder doesn't exist, create it
+            # create folder if it does not exist
             os.makedirs(config_dir)
             print(f"Folder '{config_dir}' created.")
         else:
@@ -167,13 +147,6 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
 
         for task in tasks:
             print(f"**********************************RUNNING TASK {task}*****************************")
-            """            if max_length == "max":
-                max_length = None
-            elif max_length == "std":
-                max_length = MAX_LENS[task]
-            else:
-                max_length = int(max_length)
-            """
                 
             max_length = get_max_len(max_length,task)
             
@@ -202,25 +175,22 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
 
             # add adapter
             if task in CLF_TASKS:
-                print("Adding classification adapter")
                 model = add_clf_adapter(task_name=task,model=model,num_labels=num_labels,adapter_config=adapter_config)
             elif task in MC_TASKS:
-                print("Adding multiple choice adapter")
                 model = add_mc_adapter(task_name=task,model=model,num_labels=num_labels,adapter_config=adapter_config)
             else:
                 raise Exception("Task not defined in tasks")
+            
             # set up training args
             final_output = os.path.join(output_dir,task)
             training_config["output_dir"] = final_output
             
             default_args = TrainingParameters(**training_config)
-            
-            # TODO: FIX THIS BUG WHERE "linear" becomes ["linear"]
+            # TODO: implement better fix
             default_args.lr_scheduler_type = "linear"
-            print("TRAIN BATCH SIZE:",train_batch_size)
+            
             if train_batch_size:
-                print("###########################################################################################")
-                print(f"Changing batchs size from {default_args.per_device_train_batch_size} to {train_batch_size}")
+                logger.log(f"Changing batchs size from {default_args.per_device_train_batch_size} to {train_batch_size}")
                 default_args.per_device_train_batch_size = train_batch_size
             train_args = get_training_arguments(default_args)
             
@@ -245,8 +215,6 @@ def train_and_eval(task,model,output_dir,adapter_config,training_config,max_leng
                 except Exception as e:
                     print(f"Error removing directory {checkpoint_dir}: {e}")
                 
-            print("results",eval_results)
-            print("output_dir",output_dir)
             write_eval_results(eval_results,output_dir,task,trainer,adapter_config,
                             default_args.per_device_train_batch_size,max_length,training_time,early_stopping)
             del model
@@ -283,47 +251,16 @@ if __name__ == '__main__':
     parser.add_argument("--debug",action="store_true",help="Debugging mode. Datasets are sliced to contain only 10 samples.")
     parser.add_argument("--one_seed",type=int,default=None)
     
-    #
-    #"evaluation_strategy":"epoch",
-    #"save_strategy":"epoch",
-    #"learning_rate":1e-4,
-    #"num_train_epochs":30,
-    #"per_device_train_batch_size":8,
-    #"per_device_eval_batch_size":8,
-    #"eval_steps":1,
-    #"logging_steps":200,
-    #
     args = parser.parse_args()
     
     logging.getLogger().setLevel(level=args.logging)
     
-    #outpath = Path(args.output_path)
-    # seed = [14,42,808]
     if args.one_seed:
         seeds = [args.one_seed]
     else:
         seeds = get_seeds(args.num_seeds)
     
-    """
-    tasks = args.task_name
-        if tasks == "all":
-        tasks = ALL_TASKS
-    elif tasks == "subset":
-        tasks = SUBSET_TASKS
-    elif tasks == "subset_2":
-        tasks = SUBSET_TASKS_2
-    elif tasks == "subset_3":
-        tasks = SUBSET_TASKS_3
-    elif tasks == "subset_4":
-        tasks = SUBSET_TASKS_4
-    elif tasks == "clf":
-        tasks = CLF_TASKS
-    elif tasks == "mc":
-        tasks = MC_TASKS
-    else:
-        tasks = [args.task_name]"""
     tasks = get_tasks(args.task_name)
-    #model_name = args.model_name
     output_path = args.output_path
     adapter_config_path = args.adapter_config_path
     training_config_path = args.training_config_path
@@ -345,18 +282,8 @@ if __name__ == '__main__':
         logger.info("Using all configurations")
     
     max_len = args.max_len
-    """    
-    if max_len == "max":
-        max_len = None
-    elif max_len == "std":
-        max_len = MAX_LENS[args.task_name]
-    else:
-        max_len = int(max_len)
-    """
-    #
     model_name = MODEL_MAP[args.model_name]
     
-    print("MAX LEN",max_len)
     train_start = time.time()
     for seed in seeds:
         if mode == "adapter" or mode == "all":
@@ -368,8 +295,6 @@ if __name__ == '__main__':
                               training_config=training_args,max_length=max_len,
                               train_batch_size=train_batch_size,eval_column=eval_column,early_stopping=early_stopping,
                               keep_checkpoints=keep_checkpoints,seed=seed,debug=debug)
-            # 
-            # task,model,output_dir,training_config,max_length,train_batch_size,eval_column,early_stopping,keep_checkpoints,seed)
     
     train_end = time.time()
     total_time = train_end - train_start
