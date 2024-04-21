@@ -30,6 +30,7 @@ source myenv/bin/activate
 pip install adapters datasets accelerate evaluate
 ```
 
+This will be sufficient for the experiment runner. For the analyses in ```notebooks/result_analysis.ipynb```, you will need plotting and statistics packages. See ```requirements.txt``` for the list of requirements for manual installation.
 
 ## Project Structure
 Here is an overview of the project structure:
@@ -46,21 +47,21 @@ ADAPTER_EXPERIMENTS/
 │ ├── params_check.ipynb # checking the architectures of the different models
 │ └── result_analysis.ipynb # plotting experiment results, doing statistical tests
 │
-├── outputs/ # Output files from model runs
-├── runners/ # Scripts for running experiments
+├── outputs/ # output files from model runs
+├── runners/ # scripts for running experiments
 │ └── runner.py
 │
 └── src/ 
 ├── init.py
-├── constants.py # Constants used across the codebase
-├── file_utils.py # Utilities for file operations
-├── load_data.py # Module for handling and preparing the datasets
-├── model_setup.py # Module for setting up the models and adapters
-├── plot_utils.py # Plotting utilities
-├── preprocessing.py # Module for tokenizers and transformations
-├── stats_utils.py # Module for statistical tests
-├── training.py # Module for training parameters and Hugging Face trainer
-└── utils.py # Miscellaneous utilities
+├── constants.py # constants used across the codebase
+├── file_utils.py # utilities for file operations
+├── load_data.py # module for handling and preparing the datasets
+├── model_setup.py # module for setting up the models and adapters
+├── plot_utils.py # plotting utilities
+├── preprocessing.py # module for tokenizers and transformations
+├── stats_utils.py # module for statistical tests
+├── training.py # module for training parameters and Hugging Face trainer
+└── utils.py # miscellaneous utilities
 ```
 
 ## Usage
@@ -92,9 +93,10 @@ The interface to this project is `runner.py`, which is used to conduct experimen
 To run an experiment with `runner.py`, use the following command:
 
 ```bash
-python runner.py --task_name "subset_4" --model_name "bert-tiny-uncased" --output_path "../outputs" --adapter_config_path "./src/configs/adapter_configs_revised.json" --training_config_path "./src/configs/training_config.json" --max_len 256 --mode "all"
+python runner.py --task_name "subset_4" --model_name "bert-tiny-uncased" --output_path "../outputs" --adapter_config_path "./src/configs/pfeiffer_128.json" --training_config_path "./src/configs/training_config.json" --max_len 256 --mode "all"
 ```
 
+This will reproduce the results of the trainable parameters (Pfeiffer) experiments for bert-tiny seen in ```notebooks/result_analysis.ipynb```
 
 ## Supported models
 
