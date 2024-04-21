@@ -2,12 +2,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import shapiro,pearsonr, spearmanr
+from scipy.stats import spearmanr
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
-import statsmodels.api as sm
 import matplotlib.pyplot as plt
-from statsmodels.formula.api import ols
 
 from .constants import DATASET_SIZES,HIDDEN_SIZES
 from .file_utils import read_eval_results_2
@@ -28,7 +26,6 @@ def sort_results(results,task,model_name,hidden_sizes):
 def calculate_dataset_correlation(path,dataset_sizes):
     root_folder = Path(path)
     results = read_eval_results_2(root_folder)
-    #results = read_eval_results(root_folder)
     
     mean_accuracies = {}
 
@@ -39,13 +36,13 @@ def calculate_dataset_correlation(path,dataset_sizes):
             for adapter_size in results[dataset][model]:
                 if adapter_size != 'fft':
                     accuracies.append(results[dataset][model][adapter_size]['mean_accuracy'])
-            # Calculate the overall mean accuracy for the current model, excluding 'fft'
-            if accuracies:  # Check if there are any adapter sizes besides 'fft'
+            # Calculate the overall mean accuracy for the current model, excluding fft
+            if accuracies: 
                 mean_accuracies[dataset][model] = np.mean(accuracies)
 
     df = pd.DataFrame(columns=["Model", "Spearman's rank correlation coefficient", "p-value"])
     
-    # mean_accuracies now contains the mean accuracy for each model, excluding fft, for each dataset
+    # mean_accuracies now contains the mean accuracy for each model (no fft), for each dataset
     for model in ['bert-tiny-uncased', 'roberta-tiny']:
         dataset_sizes = []
         performances = []
@@ -136,7 +133,4 @@ def calculate_anova_from_path(path,skip=None,bins=[0,100,2000,10000]):
             anova,bins = anova_test(model_name=model_name,task=task,hidden_sizes=HIDDEN_SIZES,results=results,bins=bins)
             new_row = pd.Series({'model': model_name, 'task': task, 'f-statistic': anova.statistic, 'p-value': anova.pvalue,"bins":bins})
             df = pd.concat([df, new_row.to_frame().T], ignore_index=True)
-            #print("*"*100)
-            #mc.plot_simultaneous() if mc else print("nothing to plot")
-            #plt.show()
     return df

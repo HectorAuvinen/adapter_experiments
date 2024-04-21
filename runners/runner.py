@@ -225,7 +225,7 @@ if __name__ == '__main__':
     """
     Runner for conducting experiments on the supported datasets.
     """
-    parser = argparse.ArgumentParser(description="TODO")
+    parser = argparse.ArgumentParser(description="Runner for conducting adapter experiments. See the README for details.")
     parser.add_argument("--task_name",type=str,help="Task or tasks to conduct the experiments on. See README for supported tasks",default="argument")
     parser.add_argument("--model_name",type=str,help="Model to use in the experiments. See README for supported models",default="bert-tiny-uncased")
     parser.add_argument("--output_path",type=str,help="Output path for the experiment results (model performances and configurations). \

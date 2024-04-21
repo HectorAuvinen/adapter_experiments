@@ -26,6 +26,7 @@ def handle_disk_task(task_name):
     return dataset
 
 def load_scitail(task_name,format="tsv_format"):
+    """ Load and preprocess scitail """
     dataset = load_dataset(task_name,format)
     dataset = dataset.class_encode_column("label")
     class_label_feature = ClassLabel(num_classes=2, names=['entails', 'neutral'])
@@ -33,6 +34,7 @@ def load_scitail(task_name,format="tsv_format"):
     return dataset
 
 def load_winogrande(task_name,size="winogrande_xl"):
+    """ Load and preprocess winogrande. By default the xl version is used """
     dataset = load_dataset(task_name,size)
     dataset = dataset.rename_column("answer","label")
     dataset = dataset.class_encode_column("label")
@@ -41,10 +43,13 @@ def load_winogrande(task_name,size="winogrande_xl"):
     return dataset
 
 def process_imdb(dataset):
+    """ Preprocess IMDb by converting test to validation because this is what 
+    the pipeline expects """
     dataset["validation"] = dataset.pop("test")
     return dataset
 
 def process_boolq(dataset):
+    """ Load and preprocess BoolQ """
     dataset = dataset.rename_column("answer","label")
     dataset = dataset.class_encode_column("label")
     class_label_feature = ClassLabel(num_classes=2, names=["True","False"])
@@ -52,12 +57,14 @@ def process_boolq(dataset):
     return dataset
 
 def process_social_i_qa(dataset):
+    """ Load and preprocess SocialIQA """
     dataset = dataset.class_encode_column("label")
     class_label_feature = ClassLabel(num_classes=3,names=["answerA","answerB","answerC"])
     dataset = dataset.cast_column("label",class_label_feature)
     return dataset
 
 def process_commonsense_qa(dataset):
+    """ Load and preprocess CSQA """
     dataset = dataset.rename_column("answerKey","label")
     dataset = dataset.class_encode_column("label")
     class_label_features = ClassLabel(num_classes=5,names=["0","1","2","3","4"])
@@ -65,25 +72,27 @@ def process_commonsense_qa(dataset):
     return dataset
 
 def process_cosmos_qa(dataset):
+    """ Load and preprocess CosmosQA """
     dataset = dataset.class_encode_column("label")
     class_label_feature = ClassLabel(num_classes=4, names=['answer0', 'answer1', 'answer2','answer3'])
     dataset = dataset.cast_column('label', class_label_feature)
     return dataset
 
 def process_hellaswag(dataset):
+    """ Load and preprocess Hellaswag """
     dataset = dataset.class_encode_column("label")
     class_label_feature = ClassLabel(num_classes=4, names=['0', '1', '2','3'])
     dataset = dataset.cast_column('label', class_label_feature)
     return dataset
 
 def process_mnli(dataset):
-    print("PROCESSING MNLI")
-    print("DATASET",dataset)
+    """ Preprocess IMDb by converting validation_matched to validation because this is what 
+    the pipeline expects """
     dataset["validation"] = dataset.pop("validation_matched")
-    print("dataset val",dataset["validation"])
     return dataset
 
 def process_argument(dataset):
+    """ Load and preprocess Argument """
     dataset = dataset.rename_column(original_column_name="annotation",new_column_name="label")
     dataset = dataset.class_encode_column("label")
     num_labels = 3  
@@ -94,6 +103,17 @@ def process_argument(dataset):
 
 def load_hf_dataset(task_name:str,
                     debug:bool=False) -> DatasetDict:
+    """Function for loading a dataset from Hugging Face based on the task name. The
+    16 supported datasets are specified in the README.
+
+    Args:
+        task_name (str): task name
+        debug (bool, optional): whether to use debugging (only 10 first samples used). 
+        Defaults to False.
+
+    Returns:
+        DatasetDict: The loaded and processed dataset ready for training and evaluation.
+    """
     
     if task_name in DISK_TASKS:
         dataset = handle_disk_task(task_name)

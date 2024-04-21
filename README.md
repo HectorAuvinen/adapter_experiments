@@ -37,9 +37,8 @@ Here is an overview of the project structure:
 ```bash
 ADAPTER_EXPERIMENTS/
 │
-├── adapter_env/ # Conda environment files
-├── configs/ # Configuration files for adapters and transformers models
-├── data/ # Five datasets for local experiments
+├── configs/ # configuration files for adapters and transformers models
+├── data/ # five datasets for local experiments
 │
 ├── notebooks/ # notebooks for data preprocessing and analysis
 │ ├── argument_data_preprocessing.ipynb # preprocessing the argument dataset
@@ -47,7 +46,7 @@ ADAPTER_EXPERIMENTS/
 │ ├── params_check.ipynb # checking the architectures of the different models
 │ └── result_analysis.ipynb # plotting experiment results, doing statistical tests
 │
-├── outputs/ # output files from model runs
+├── outputs/ # output files from model runs (used in result analysis)
 ├── runners/ # scripts for running experiments
 │ └── runner.py
 │
@@ -70,8 +69,8 @@ The interface to this project is `runner.py`, which is used to conduct experimen
 
 ### Arguments
 
-- `--task_name`: Specify the task or tasks to conduct the experiments on. See the list of supported tasks in the README.
-- `--model_name`: Choose the model to use in the experiments. See the list of supported models in the README.
+- `--task_name`: Specify the task or tasks to conduct the experiments on. See the list of supported tasks below.
+- `--model_name`: Choose the model to use in the experiments. See the list of supported models below.
 - `--output_path`: Set the output path for the experiment results, including model performances and configurations. Use the `--keep_checkpoints` flag to retain trained models.
 - `--adapter_config_path`: Provide the path to the adapter configuration. This should be a JSON file with a dictionary of configuration names and their corresponding settings. See `configs` for example configurations.
 - `--training_config_path`: Path to the Transformers training configuration JSON file. See `configs/training_config.json` for an example configuration.
@@ -111,7 +110,7 @@ The supported models are specified in the table below. The ```model_name``` argu
 
 ## Supported datasets
 
-All 16 datasets from the [Adapterfusion paper](https://arxiv.org/pdf/2005.00247.pdf) are supported. The ```task_name``` argument of ```runner.py``` expects the dataset name as it is in the ```ID``` column. The datasets are downloaded from Hugging Face (except for Argument) for training.
+All 16 datasets from the [Adapterfusion paper](https://arxiv.org/pdf/2005.00247.pdf) are supported. The ```task_name``` argument of ```runner.py``` expects the dataset name as it is in the ```ID``` column. The datasets are downloaded from Hugging Face (except for Argument). If you need to be able to run everything locally, use the local preprocessed datasets in ```data/hf_data``` (or use your own datasets). The local datasets need to be specified in ```DISK_TASKS``` in ```src/constants.py```.
 
 | Dataset | ID | Samples Train | Samples Val| Samples Test |
 |---------|----------|-------------|--------------------|---------------|
