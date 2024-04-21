@@ -102,7 +102,7 @@ def anova_test(model_name,task,hidden_sizes,results,bins=[0,100,1000,10000],show
         print("Significant differences found, proceeding with Tukey's HSD test.")
         mc = pairwise_tukeyhsd(endog=data['Performance'], groups=data['Size Category'], alpha=0.05)
         
-        if show_plot():
+        if show_plot:
             mc.plot_simultaneous()
             plt.show()
         

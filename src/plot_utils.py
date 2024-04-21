@@ -97,7 +97,7 @@ def plot_evaluation_subplots(data, errors, sorted_reduction_factors, tasks, plot
     plt.grid(True, which="both", axis="y", linestyle="--", linewidth=0.5, color="grey", alpha=0.5)
     plt.legend(title="Reduction Factor", loc="lower left")
 
-def plot_all_models(root_folder,suffix=""):
+def plot_all_models(root_folder,suffix="",show_batch_and_len=False):
     
     root_path = Path(root_folder)
     model_folders = [f for f in root_path.iterdir() if f.is_dir()]
@@ -108,7 +108,7 @@ def plot_all_models(root_folder,suffix=""):
     plt.figure(figsize=(12 * grid_size, 8 * grid_size))
     
     for idx, model_folder in enumerate(model_folders, start=1):
-        new_results = read_eval_results(model_folder, two_datasets=True)
+        new_results = read_eval_results(model_folder, two_datasets=True,show_batch_and_len=show_batch_and_len)
         data, errors, sorted_reduction_factors, tasks = prepare_eval_for_plots(new_results)
         
         plt.subplot(grid_size, grid_size, idx)

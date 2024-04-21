@@ -4,9 +4,21 @@ This repository allows for using the Adapters library to conduct experiments wit
 
 ## Environment
 
-There is an `environment.yml` file that contains the dependencies for the project. If you encounter problems in installing torch from `environment.yml`, create an empty environment and install `adapters`,`datasets`,`accelerate` and `evaluate`:
+There is an `requirements.txt` file that contains the dependencies for the project.
 
-### Using pip
+```bash
+python -m venv myenv
+# On Windows
+myenv\Scripts\activate
+# On MacOS/Linux
+source myenv/bin/activate
+
+pip install -r requirements.txt
+```
+
+
+If you encounter problems in installing the requirements, create an empty environment and install `adapters`,`datasets`,`accelerate` and `evaluate`:
+
 ```bash
 python -m venv myenv
 
@@ -18,17 +30,6 @@ source myenv/bin/activate
 pip install adapters datasets accelerate evaluate
 ```
 
-### Using conda
-```bash
-conda create -n myenv python=3.8
-
-conda activate myenv
-
-conda install -c conda-forge adapters datasets accelerate evaluate
-```
-
-
-This will be sufficient for the project.
 
 ## Project Structure
 Here is an overview of the project structure:
