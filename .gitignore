@@ -8,9 +8,8 @@ __pycache__
 
 hf_data/
 
-# different venv on different machines (package version differ because of hardware)
+# different venvs on different machines (package version differ because of hardware)
 req_venv/
 test_venv/
 adapter_env/
 adapterenv/
-
