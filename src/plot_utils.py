@@ -6,6 +6,7 @@ from .file_utils import *
 
 
 def prepare_eval_for_plots(new_results):
+    """ Prepare the evaluation result dictionary for plotting"""
     mean_accuracies = {}
     std_dev_accuracies = {}
 
@@ -53,6 +54,7 @@ def prepare_eval_for_plots(new_results):
     return data,errors,sorted_reduction_factors,tasks
 
 def plot_evaluation(data,errors,sorted_reduction_factors,tasks,plot_title):
+    """ Plot the evaluation results"""
     plt.figure(figsize=(12, 8))
     num_reduction_factors = len(sorted_reduction_factors)
     bar_width = 0.8 / num_reduction_factors
@@ -98,7 +100,7 @@ def plot_evaluation_subplots(data, errors, sorted_reduction_factors, tasks, plot
     plt.legend(title="Reduction Factor", loc="lower left")
 
 def plot_all_models(root_folder,suffix="",show_batch_and_len=False):
-    
+    """ plot all model results in a grid (barplot)"""
     root_path = Path(root_folder)
     model_folders = [f for f in root_path.iterdir() if f.is_dir()]
 
@@ -118,6 +120,7 @@ def plot_all_models(root_folder,suffix="",show_batch_and_len=False):
     plt.show() 
 
 def plot_line_results_grid(results,hidden_sizes,marker):
+    """ plot all model results in a grid (lineplot)"""
     num_datasets = len(results)
 
     fig, axes = plt.subplots(1, num_datasets, figsize=(24, 7))
@@ -174,6 +177,7 @@ def plot_line_results_grid(results,hidden_sizes,marker):
 
 
 def plot_line_results(results, hidden_sizes,marker):
+    """ Plot a single model result (lineplot)"""
     for dataset_name, dataset_results in results.items():
         plt.figure(figsize=(12, 7))
 

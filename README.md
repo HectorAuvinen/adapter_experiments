@@ -122,8 +122,10 @@ All 16 datasets from the [Adapterfusion paper](https://arxiv.org/pdf/2005.00247.
 |Hellaswag|hellaswag| 39905|10003|10042 |
 |SocialIQA| social_i_qa|  33410|  1954|  0|
 |CosmosQA|  cosmos_qa|  25262|  6963|  2985|
-|SciTail| scitail|  18341|  2042|  5109|
-|CSQA| commonsense_qa|  9427|  3270|  0|
+|SciTail| scitail| 23097|1304 |2126|
+|Argument| argument|  18341|  2042|  5109|
+|CSQA| commonsense_qa| 9741|1221|1140|
+|BoolQ| boolq|  9427|  3270|  0|
 |MRPC| mrpc|  3668|  408|  1725|
 |SICK| sick|  4439|  495|  4906|
 |RTE| rte |  2490|  277|  3000|

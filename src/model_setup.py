@@ -86,7 +86,6 @@ def add_clf_adapter(task_name,model,num_labels,adapter_config):
         num_labels=num_labels
     )
     model.train_adapter(task_name)
-    #model.set_active_adapters(task_name)
     
     return model
 

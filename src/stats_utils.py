@@ -12,6 +12,9 @@ from .file_utils import read_eval_results_2
 
 
 def sort_results(results,task,model_name,hidden_sizes):
+    """ 
+    Convert dictionary of model results to lists of adapter sizes and performances
+    """
     adapter_sizes = []
     performances = []
 
@@ -24,6 +27,9 @@ def sort_results(results,task,model_name,hidden_sizes):
 
 
 def calculate_dataset_correlation(path,dataset_sizes):
+    """ 
+    Read results from path and calculate the correlation between dataset size and performance
+    """
     root_folder = Path(path)
     results = read_eval_results_2(root_folder)
     
@@ -36,18 +42,16 @@ def calculate_dataset_correlation(path,dataset_sizes):
             for adapter_size in results[dataset][model]:
                 if adapter_size != 'fft':
                     accuracies.append(results[dataset][model][adapter_size]['mean_accuracy'])
-            # Calculate the overall mean accuracy for the current model, excluding fft
             if accuracies: 
                 mean_accuracies[dataset][model] = np.mean(accuracies)
 
     df = pd.DataFrame(columns=["Model", "Spearman's rank correlation coefficient", "p-value"])
     
-    # mean_accuracies now contains the mean accuracy for each model (no fft), for each dataset
+    # mean_accuracies now contains the mean accuracy for each model (no fft) for each dataset
     for model in ['bert-tiny-uncased', 'roberta-tiny']:
         dataset_sizes = []
         performances = []
 
-        # Collect dataset sizes and performances for the current model
         for dataset, models_performance in mean_accuracies.items():
             if dataset in DATASET_SIZES and model in models_performance:
                 dataset_sizes.append(DATASET_SIZES[dataset])
@@ -110,6 +114,9 @@ def anova_test(model_name,task,hidden_sizes,results,bins=[0,100,1000,10000],show
 
 
 def calculate_stats_from_path(path,skip=None):
+    """ 
+    calculate Spearman's correlation for results in a given path
+    """
     root_folder = Path(path)
     results = read_eval_results_2(root_folder)
     df = pd.DataFrame({"model":[],"task":[],"corr":[],"p-value":[]})
@@ -123,6 +130,9 @@ def calculate_stats_from_path(path,skip=None):
     return df
 
 def calculate_anova_from_path(path,skip=None,bins=[0,100,2000,10000]):
+    """ 
+    calculate ANOVA for results in a given path
+    """
     root_folder = Path(path)
     results = read_eval_results_2(root_folder)
     df = pd.DataFrame({"model":[],"task":[],"f-statistic":[],"p-value":[],"bins":[]})
