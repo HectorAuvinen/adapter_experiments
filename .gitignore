@@ -6,7 +6,6 @@ __pycache__
 
 .vscode/
 
-hf_data/
 
 # different venvs on different machines (package version differ because of hardware)
 req_venv/

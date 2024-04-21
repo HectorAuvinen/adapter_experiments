@@ -1,0 +1,73 @@
+{
+  "builder_name": "parquet",
+  "citation": "@InProceedings{ai2:winogrande,\ntitle = {WinoGrande: An Adversarial Winograd Schema Challenge at Scale},\nauthors={Keisuke, Sakaguchi and Ronan, Le Bras and Chandra, Bhagavatula and Yejin, Choi\n},\nyear={2019}\n}\n",
+  "config_name": "winogrande_xl",
+  "dataset_name": "winogrande",
+  "dataset_size": 5577568,
+  "description": "WinoGrande is a new collection of 44k problems, inspired by Winograd Schema Challenge (Levesque, Davis, and Morgenstern\n 2011), but adjusted to improve the scale and robustness against the dataset-specific bias. Formulated as a\nfill-in-a-blank task with binary options, the goal is to choose the right option for a given sentence which requires\ncommonsense reasoning.\n",
+  "download_checksums": {
+    "hf://datasets/winogrande@e722bf556b940b6cfb8e1dbb5ca7180fa9a380aa/winogrande_xl/train/0000.parquet": {
+      "num_bytes": 2058506,
+      "checksum": null
+    },
+    "hf://datasets/winogrande@e722bf556b940b6cfb8e1dbb5ca7180fa9a380aa/winogrande_xl/test/0000.parquet": {
+      "num_bytes": 117656,
+      "checksum": null
+    },
+    "hf://datasets/winogrande@e722bf556b940b6cfb8e1dbb5ca7180fa9a380aa/winogrande_xl/validation/0000.parquet": {
+      "num_bytes": 85928,
+      "checksum": null
+    }
+  },
+  "download_size": 2262090,
+  "features": {
+    "sentence": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "option1": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "option2": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "label": {
+      "names": [
+        "option1",
+        "option2"
+      ],
+      "_type": "ClassLabel"
+    }
+  },
+  "homepage": "https://leaderboard.allenai.org/winogrande/submissions/get-started",
+  "license": "",
+  "size_in_bytes": 7839658,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 5185752,
+      "num_examples": 40398,
+      "dataset_name": "winogrande"
+    },
+    "test": {
+      "name": "test",
+      "num_bytes": 227633,
+      "num_examples": 1767,
+      "dataset_name": "winogrande"
+    },
+    "validation": {
+      "name": "validation",
+      "num_bytes": 164183,
+      "num_examples": 1267,
+      "dataset_name": "winogrande"
+    }
+  },
+  "version": {
+    "version_str": "1.1.0",
+    "major": 1,
+    "minor": 1,
+    "patch": 0
+  }
+}

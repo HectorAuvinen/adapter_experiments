@@ -92,10 +92,10 @@ The interface to this project is `runner.py`, which is used to conduct experimen
 To run an experiment with `runner.py`, use the following command:
 
 ```bash
-python runner.py --task_name "subset_4" --model_name "bert-tiny-uncased" --output_path "../outputs" --adapter_config_path "./src/configs/pfeiffer_128.json" --training_config_path "./src/configs/training_config.json" --max_len 256 --mode "all"
+python runner.py --task_name "subset_4" --model_name "bert-tiny-uncased" --output_path "../outputs" --adapter_config_path "../configs/pfeiffer_128.json" --training_config_path "../configs/training_config.json" --max_len 256 --mode "all"
 ```
 
-This will reproduce the results of the trainable parameters (Pfeiffer) experiments for bert-tiny seen in ```notebooks/result_analysis.ipynb```
+This will reproduce the results of the trainable parameters (Pfeiffer) experiments for bert-tiny seen in ```notebooks/result_analysis.ipynb```.
 
 ## Supported models
 
