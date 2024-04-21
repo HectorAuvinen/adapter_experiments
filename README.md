@@ -38,7 +38,7 @@ Here is an overview of the project structure:
 ADAPTER_EXPERIMENTS/
 │
 ├── configs/ # configuration files for adapters and transformers models
-├── data/ # five datasets for local experiments
+├── data/ # three datasets for local experiments
 │
 ├── notebooks/ # notebooks for data preprocessing and analysis
 │ ├── argument_data_preprocessing.ipynb # preprocessing the argument dataset
