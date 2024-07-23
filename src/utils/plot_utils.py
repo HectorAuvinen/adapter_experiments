@@ -301,12 +301,12 @@ def plot_baseline_reproduction(df,new_results):
 
     r2 = [x + bar_width for x in r1]
 
-    bars1 = plt.bar(r1, df['ST-A'], color='skyblue', width=bar_width, label='ST-A')
-    bars2 = plt.bar(r2, df['New-ST-A'], color='orange', width=bar_width, label='New ST-A')
+    bars1 = plt.bar(r1, df['ST-A'], color='skyblue', width=bar_width, label='ST-A Original')
+    bars2 = plt.bar(r2, df['New-ST-A'], color='orange', width=bar_width, label='ST-A Ours')
 
     plt.xlabel('Dataset')
-    plt.ylabel('ST-A Score')
-    plt.title('ST-A Results for Datasets')
+    plt.ylabel('Accuracy')
+    plt.title('ST-A Reproduction Results')
 
     for bars in (bars1, bars2):
         for bar in bars:
