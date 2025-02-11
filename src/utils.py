@@ -1,3 +1,5 @@
+import logging
+
 from .constants import PREDEFINED_SEEDS,ALL_TASKS,SUBSET_TASKS,SUBSET_TASKS_2,SUBSET_TASKS_3,SUBSET_TASKS_4,CLF_TASKS,MC_TASKS,MAX_LENS
 
 def get_seeds(n_seeds):
@@ -16,10 +18,8 @@ def get_key_by_value(value,map):
     """
     Return the value for a given key in a dictionary
     """
-    for key, val in map.items():
-        if val == value:
-            return key
-    return None
+    key = next((key for key,val in map.items() if val == value),None)
+    return key
 
 def invert_dict(dict):
     """
@@ -61,3 +61,17 @@ def get_max_len(max_length,task):
         max_length = int(max_length)
     
     return max_length
+
+
+def logger_setup():
+    """
+    Set up the logger
+    
+    """
+    logger = logging.getLogger(__name__)
+    
+    logger.setLevel(logging.INFO)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    logger.addHandler(ch)
+    return logger

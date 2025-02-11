@@ -37,8 +37,8 @@ Here is an overview of the project structure:
 ```bash
 ADAPTER_EXPERIMENTS/
 │
-├── configs/ # configuration files for adapters and transformers models
-├── data/ # three datasets for local experiments
+├── configs/ # Configuration files for adapters and transformers models
+├── data/ # Five datasets for local experiments
 │
 ├── notebooks/ # notebooks for data preprocessing and analysis
 │ ├── argument_data_preprocessing.ipynb # preprocessing the argument dataset
@@ -46,21 +46,22 @@ ADAPTER_EXPERIMENTS/
 │ ├── params_check.ipynb # checking the architectures of the different models
 │ └── result_analysis.ipynb # plotting experiment results, doing statistical tests
 │
-├── outputs/ # output files from model runs (used in result analysis)
-├── runners/ # scripts for running experiments
-│ └── runner.py
+├── outputs/ # output files from model runs
 │
-└── src/ 
-├── init.py
-├── constants.py # constants used across the codebase
-├── file_utils.py # utilities for file operations
-├── load_data.py # module for handling and preparing the datasets
-├── model_setup.py # module for setting up the models and adapters
-├── plot_utils.py # plotting utilities
-├── preprocessing.py # module for tokenizers and transformations
-├── stats_utils.py # module for statistical tests
-├── training.py # module for training parameters and Hugging Face trainer
-└── utils.py # miscellaneous utilities
+├── src/ 
+│ ├──init.py
+│ ├── constants.py # constants used across the codebase
+│ ├── experiments.py # configuration and runner classes for conducting experiments
+│ ├── file_utils.py # utilities for file operations
+│ ├── load_data.py # module for handling and preparing the datasets
+│ ├── model_setup.py # module for setting up the models and adapters
+│ ├── plot_utils.py # plotting utilities
+│ ├── preprocessing.py # module for tokenizers and transformations
+│ ├── result_repository.py # class for handling model weight and result CRUD operations
+│ ├── runner.py # main script for collecting arguments and triggering the experiments
+│ ├── stats_utils.py # module for statistical tests
+│ ├── training.py # module for training parameters and Hugging Face trainer
+│ ├── utils.py # miscellaneous utilities
 ```
 
 ## Usage
@@ -74,7 +75,6 @@ The interface to this project is `runner.py`, which is used to conduct experimen
 - `--output_path`: Set the output path for the experiment results, including model performances and configurations. Use the `--keep_checkpoints` flag to retain trained models.
 - `--adapter_config_path`: Provide the path to the adapter configuration. This should be a JSON file with a dictionary of configuration names and their corresponding settings. See `configs` for example configurations.
 - `--training_config_path`: Path to the Transformers training configuration JSON file. See `configs/training_config.json` for an example configuration.
-- `--logging`: Set the log level for the execution of the script.
 - `--single_config`: Use this flag to run with only the first configuration entry if your JSON file contains multiple configurations.
 - `--train_batch_size`: Define the training batch size. This can also be set in the training configuration file.
 - `--eval_batch_size`: Set the evaluation batch size. This can also be set in the training configuration file.
